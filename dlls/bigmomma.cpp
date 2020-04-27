@@ -30,6 +30,7 @@
 
 #define SF_INFOBM_RUN		0x0001
 #define SF_INFOBM_WAIT		0x0002
+#define SF_INFOBM_FORGET_ENEMY 0x0004
 
 #define SF_BIGMOM_NOBABYCRABS SF_MONSTER_DONT_DROP_GUN
 #define SF_MONSTERCLIP_BABYCRABS SF_MONSTER_SPECIAL_FLAG
@@ -1039,6 +1040,13 @@ void CBigMomma::StartTask( Task_t *pTask )
 		break;
 	case TASK_WAIT_NODE:
 	{
+		if (m_hTargetEnt->pev->spawnflags & SF_INFOBM_FORGET_ENEMY)
+		{
+			ALERT(at_aiconsole, "BM: Forgets about enemy\n", STRING(pev->classname));
+			m_hEnemy = NULL;
+			SetState( MONSTERSTATE_ALERT );
+		}
+
 		const float delay = GetNodeDelay();
 		if (g_modFeatures.bigmomma_wait_fix)
 		{
