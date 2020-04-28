@@ -35,6 +35,14 @@
 #define SF_BIGMOM_NOBABYCRABS SF_MONSTER_DONT_DROP_GUN
 #define SF_MONSTERCLIP_BABYCRABS SF_MONSTER_SPECIAL_FLAG
 
+enum
+{
+	LAYCRABS_NOCHANGE = 0,
+	LAYCRABS_ON,
+	LAYCRABS_OFF,
+	LAYCRABS_TOGGLE,
+};
+
 // AI Nodes for Big Momma
 class CInfoBM : public CPointEntity
 {
@@ -90,6 +98,11 @@ void CInfoBM::KeyValue( KeyValueData* pkvd )
 	else if( FStrEq( pkvd->szKeyName, "presequence" ) )
 	{
 		m_preSequence = ALLOC_STRING( pkvd->szValue );
+		pkvd->fHandled = true;
+	}
+	else if( FStrEq( pkvd->szKeyName, "laycrabs" ) )
+	{
+		pev->weapons = atoi( pkvd->szValue );
 		pkvd->fHandled = true;
 	}
 	else
@@ -266,6 +279,16 @@ public:
 				return pTarget->pev->angles.y;
 		}
 		return pev->angles.y;
+	}
+
+	int GetNodeLayCrabs( void )
+	{
+		CInfoBM *pTarget = GetTargetInfoBM();
+		if( pTarget )
+		{
+			return pTarget->pev->weapons;
+		}
+		return 0;
 	}
 
 	// Restart the crab count on each new level
@@ -1050,6 +1073,32 @@ void CBigMomma::StartTask( Task_t *pTask )
 				oldEnemy = 0;
 			}
 			SetState( MONSTERSTATE_ALERT );
+		}
+
+		{
+			const int layCrabs = GetNodeLayCrabs();
+			switch (layCrabs) {
+			case LAYCRABS_OFF:
+				SetBits(pev->spawnflags, SF_BIGMOM_NOBABYCRABS);
+				break;
+			case LAYCRABS_ON:
+				ClearBits(pev->spawnflags, SF_BIGMOM_NOBABYCRABS);
+				break;
+			case LAYCRABS_TOGGLE:
+			{
+				if (FBitSet(pev->spawnflags, SF_BIGMOM_NOBABYCRABS))
+				{
+					ClearBits(pev->spawnflags, SF_BIGMOM_NOBABYCRABS);
+				}
+				else
+				{
+					SetBits(pev->spawnflags, SF_BIGMOM_NOBABYCRABS);
+				}
+			}
+				break;
+			default:
+				break;
+			}
 		}
 
 		const float delay = GetNodeDelay();

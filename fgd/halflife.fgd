@@ -3580,6 +3580,13 @@
 	reachsequence(string) : "Sequence on approach" : ""
 	health(string) : "Health on approach" : ""
 	presequence(string) : "Sequence before approach" : ""
+	laycrabs(choices) : "Lay Crabs Policy" =
+	[
+		0 : "No Change"
+		1 : "Start Laying Crabs"
+		2 : "Stop Laying Crabs"
+		3 : "Toggle Laying Crabs"
+	]
 ]
 
 // Displacer target placement represents the point where the player's feet shall be
