@@ -145,7 +145,6 @@ LINK_ENTITY_TO_CLASS(monster_shocktrooper, CShockTrooper)
 
 TYPEDESCRIPTION	CShockTrooper::m_SaveData[] =
 {
-	DEFINE_FIELD(CShockTrooper, m_bRightClaw, FIELD_BOOLEAN),
 	DEFINE_FIELD(CShockTrooper, m_rechargeTime, FIELD_TIME),
 	DEFINE_FIELD(CShockTrooper, m_blinkTime, FIELD_TIME),
 	DEFINE_FIELD(CShockTrooper, m_eyeChangeTime, FIELD_TIME),
