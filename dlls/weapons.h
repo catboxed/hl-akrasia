@@ -506,7 +506,6 @@ public:
 	bool Deploy() override;
 	void Reload( void );
 	void WeaponIdle( void );
-	float m_flNextAnimTime;
 	int m_iShell;
 
 	bool UseDecrement() override
