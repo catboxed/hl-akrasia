@@ -744,7 +744,7 @@ bool CHAssassin::CheckMeleeAttack1( float flDot, float flDist )
 //=========================================================
 bool CHAssassin::CheckRangeAttack1( float flDot, float flDist )
 {
-	if( !HasConditions( bits_COND_ENEMY_OCCLUDED ) && flDist > 64 && flDist <= 2048 /* && flDot >= 0.5 */ /* && NoFriendlyFire() */ )
+	if( !HasConditions( bits_COND_ENEMY_OCCLUDED ) && flDist > 64 && flDist <= 2048 /* && flDot >= 0.5 */ && NoFriendlyFire() )
 	{
 		TraceResult tr;
 
@@ -779,6 +779,20 @@ bool CHAssassin::CheckRangeAttack2( float flDot, float flDist )
 
 	if( m_flNextGrenadeCheck < gpGlobals->time && !HasConditions( bits_COND_ENEMY_OCCLUDED ) && flDist <= 512 /* && flDot >= 0.5 */ /* && NoFriendlyFire() */ )
 	{
+		Vector vecTarget = m_vecEnemyLKP;
+		if (AllyMonsterInRange( vecTarget, 256 ))
+		{
+			m_flNextGrenadeCheck = gpGlobals->time + 1.0f;
+			return m_fThrowGrenade;
+		}
+
+		// Originally assassins didn't have this check.
+		if( ( vecTarget - pev->origin ).Length2D() <= 128.0f )
+		{
+			m_flNextGrenadeCheck = gpGlobals->time + 0.5f;
+			return m_fThrowGrenade;
+		}
+
 		Vector vecToss = VecCheckThrow( pev, GetGunPosition(), m_hEnemy->Center(), flDist, 0.5 ); // use dist as speed to get there in 1 second
 
 		if( vecToss != g_vecZero )
