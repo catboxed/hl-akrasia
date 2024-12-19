@@ -39,6 +39,7 @@ public:
 	float		CeilingZ( const Vector &position );
 	float		FloorZ( const Vector &position );
 	bool		ProbeZ( const Vector &position, const Vector &probe, float *pFraction );
+	Vector	DoProbe(const Vector &Probe, const Vector& myVelocity);
 
 	// UNDONE:  Save/restore this stuff!!!
 protected:

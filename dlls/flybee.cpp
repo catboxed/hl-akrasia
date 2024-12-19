@@ -1188,41 +1188,7 @@ void CFlybee::Swim()
 
 Vector CFlybee::DoProbe(const Vector &Probe)
 {
-	Vector WallNormal = Vector(0,0,-1); // WATER normal is Straight Down for fish.
-	float frac;
-	bool bBumpedSomething = ProbeZ(pev->origin, Probe, &frac);
-
-	TraceResult tr;
-	TRACE_MONSTER_HULL(edict(), pev->origin, Probe, dont_ignore_monsters, edict(), &tr);
-	if ( tr.fAllSolid || tr.flFraction < 0.99 )
-	{
-		if (tr.flFraction < 0.0) tr.flFraction = 0.0;
-		if (tr.flFraction > 1.0) tr.flFraction = 1.0;
-		if (tr.flFraction < frac)
-		{
-			frac = tr.flFraction;
-			bBumpedSomething = true;
-			WallNormal = tr.vecPlaneNormal;
-		}
-	}
-
-	if (bBumpedSomething && (m_hEnemy == 0 || tr.pHit != m_hEnemy->edict()))
-	{
-		Vector ProbeDir = Probe - pev->origin;
-
-		Vector NormalToProbeAndWallNormal = CrossProduct(ProbeDir, WallNormal);
-		Vector SteeringVector = CrossProduct( NormalToProbeAndWallNormal, ProbeDir);
-
-		float SteeringForce = m_flightSpeed * (1-frac) * (DotProduct(WallNormal.Normalize(), m_SaveVelocity.Normalize()));
-		if (SteeringForce < 0.0)
-		{
-			SteeringForce = -SteeringForce;
-		}
-		SteeringVector = SteeringForce * SteeringVector.Normalize();
-		
-		return SteeringVector;
-	}
-	return Vector(0, 0, 0);
+	return CFlyingMonster::DoProbe(Probe, m_SaveVelocity);
 }
 
 CFlyBall *CFlyBall::CreateFlyBall( Vector vecOrigin, Vector vecAngles, entvars_s *pevOwner, EntityOverrides entityOverrides )
