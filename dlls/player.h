@@ -545,6 +545,7 @@ public:
 	int m_cameraFlags;
 
 	float m_spriteHintTimeCheck;
+	bool m_needSatchelRecheck;
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

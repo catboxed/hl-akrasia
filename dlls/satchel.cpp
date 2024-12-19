@@ -58,6 +58,7 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	void BounceSound( void );
+	void Explode( TraceResult *pTrace, int bitsDamageType );
 
 	void EXPORT SatchelSlide( CBaseEntity *pOther );
 	void EXPORT SatchelThink( void );
@@ -189,6 +190,21 @@ void CSatchelCharge::BounceSound( void )
 	EmitSoundScript(bounceSoundScript);
 }
 
+void CSatchelCharge::Explode( TraceResult *pTrace, int bitsDamageType )
+{
+	edict_t* pOwner = pev->owner;
+	CGrenade::Explode(pTrace, bitsDamageType);
+	if (!FNullEnt(pOwner))
+	{
+		CBaseEntity* pEntity = CBaseEntity::Instance(pOwner);
+		if (pEntity->IsPlayer())
+		{
+			CBasePlayer* pPlayer = (CBasePlayer*)pEntity;
+			pPlayer->m_needSatchelRecheck = true;
+		}
+	}
+}
+
 bool CSatchelCharge::HandleDoorBlockage(CBaseEntity *pDoor)
 {
 	if( satchelfix.value )
@@ -198,6 +214,21 @@ bool CSatchelCharge::HandleDoorBlockage(CBaseEntity *pDoor)
 		return true;
 	}
 	return false;
+}
+
+static bool AnySatchelsLeft(edict_t* pOwner, CBaseEntity* satchelSelf = nullptr)
+{
+	bool anySatchelsLeft = false;
+	CBaseEntity* pSatchel = nullptr;
+	while ((pSatchel = UTIL_FindEntityByClassname(pSatchel, "monster_satchel")) != nullptr)
+	{
+		if (pSatchel != satchelSelf && pSatchel->pev->owner == pOwner)
+		{
+			anySatchelsLeft = true;
+			break;
+		}
+	}
+	return anySatchelsLeft;
 }
 
 void CSatchelCharge::SatchelUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
@@ -215,16 +246,7 @@ void CSatchelCharge::SatchelUse( CBaseEntity *pActivator, CBaseEntity *pCaller, 
 					pPlayer->EmitSoundScript(Items::ammoPickupSoundScript);
 #endif
 
-					bool anySatchelsLeft = false;
-					CBaseEntity* pSatchel = NULL;
-					while ( ( pSatchel = UTIL_FindEntityByClassname(pSatchel, "monster_satchel") ) )
-					{
-						if ( pSatchel != this && pSatchel->pev->owner == pActivator->edict() )
-						{
-							anySatchelsLeft = true;
-							break;
-						}
-					}
+					bool anySatchelsLeft = AnySatchelsLeft(pActivator->edict(), this);
 					CSatchel* pSatchelWeapon = (CSatchel*)pPlayer->WeaponById(WEAPON_SATCHEL);
 					if (pSatchelWeapon) {
 						if (!anySatchelsLeft)
@@ -570,6 +592,29 @@ void CSatchel::WeaponIdle( void )
 		break;
 	}
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );// how long till we do this again.
+}
+
+void CSatchel::ItemPreFrame()
+{
+	CBasePlayerWeapon::ItemPreFrame();
+	if (m_pPlayer->m_needSatchelRecheck)
+	{
+		if (m_chargeReady == SATCHEL_READY && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
+		{
+#if !CLIENT_DLL
+			bool anySatchelsLeft = AnySatchelsLeft(m_pPlayer->edict());
+			if (!anySatchelsLeft)
+			{
+				m_chargeReady = SATCHEL_RELOAD;
+				m_flNextPrimaryAttack = GetNextAttackDelay( 0.5f );
+				m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5f;
+				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5f;
+			}
+#endif
+		}
+
+		m_pPlayer->m_needSatchelRecheck = false;
+	}
 }
 
 void CSatchel::DrawSatchel()

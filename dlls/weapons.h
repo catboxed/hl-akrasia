@@ -879,6 +879,7 @@ public:
 	bool CanBeDropped();
 
 	void Holster();
+	void ItemPreFrame();
 	void WeaponIdle( void );
 	void Throw( void );
 	void Detonate(bool allowThrow);
