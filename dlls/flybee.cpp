@@ -915,7 +915,7 @@ void CFlybee::RunTask ( Task_t *pTask )
 
 	case TASK_DIE:
 
-		if ( m_fSequenceFinished && m_IdealActivity == ACT_DIESIMPLE && FBitSet( pev->flags, FL_ONGROUND) )
+		if ( m_fSequenceFinished && m_IdealActivity == ACT_DIESIMPLE && (FBitSet( pev->flags, FL_ONGROUND) || pev->waterlevel == WL_Eyes) )
 		{
 			pev->deadflag = DEAD_DYING;
 			m_IdealActivity = ACT_LAND;
