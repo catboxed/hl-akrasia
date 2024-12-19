@@ -5938,11 +5938,10 @@ void CBasePlayer::DropPlayerItemById(int iId)
 
 void CBasePlayer::DropPlayerItemImpl(CBasePlayerWeapon *pWeapon, int dropType, float speed)
 {
-	if (!pWeapon->CanBeDropped())
+	if (!pWeapon->CanBeDropped() || !pWeapon->CanHolster())
 		return;
 
-	if (!g_pGameRules->GetNextBestWeapon( this, pWeapon ))
-		return;
+	g_pGameRules->GetNextBestWeapon( this, pWeapon );
 
 	UTIL_MakeVectors( pev->angles );
 
@@ -6017,6 +6016,8 @@ void CBasePlayer::DropPlayerItemImpl(CBasePlayerWeapon *pWeapon, int dropType, f
 		}
 	}
 	pWeaponBox->PackWeapon( pWeapon );
+	if (!m_pActiveItem)
+		SendCurWeaponClear();
 }
 
 void CBasePlayer::DropAmmo()
