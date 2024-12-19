@@ -331,16 +331,9 @@ int CSatchel::AddDuplicate( CBasePlayerWeapon *pOriginal )
 //=========================================================
 bool CSatchel::AddToPlayer( CBasePlayer *pPlayer )
 {
-	int bResult = CBasePlayerWeapon::AddToPlayer( pPlayer );
-
-	pPlayer->SetWeaponBit(WeaponId());
+	bool bResult = CBasePlayerWeapon::AddToPlayer( pPlayer );
 	m_chargeReady = SATCHEL_IDLE;// this satchel charge weapon now forgets that any satchels are deployed by it.
-
-	if( bResult )
-	{
-		return AddWeapon();
-	}
-	return false;
+	return bResult;
 }
 
 void CSatchel::Spawn()
