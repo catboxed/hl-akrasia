@@ -78,16 +78,7 @@ void CPython::Precache( void )
 
 bool CPython::Deploy()
 {
-	if( bIsMultiplayer() )
-	{
-		// enable laser sight geometry.
-		pev->body = 1;
-	}
-	else
-	{
-		pev->body = 0;
-	}
-
+	pev->body = ViewModelBody();
 	return DefaultDeploy( "models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", pev->body );
 }
 
@@ -189,8 +180,7 @@ void CPython::Reload( void )
 		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 0;  // 0 means reset to default fov
 	}
 
-	int bUseScope = bIsMultiplayer() ? 1 : 0;
-	if( DefaultReload( PYTHON_MAX_CLIP, PYTHON_RELOAD, 2.0f, bUseScope ) )
+	if( DefaultReload( PYTHON_MAX_CLIP, PYTHON_RELOAD, 2.0f, ViewModelBody() ) )
 	{
 		m_flSoundDelay = 1.5f;
 	}
@@ -234,7 +224,11 @@ void CPython::WeaponIdle( void )
 		iAnim = PYTHON_FIDGET;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + ( 170.0f / 30.0f );
 	}
-	
-	int bUseScope = bIsMultiplayer() ? 1 : 0;
-	SendWeaponAnim( iAnim, bUseScope );
+
+	SendWeaponAnim( iAnim, ViewModelBody() );
+}
+
+int CPython::ViewModelBody()
+{
+	return bIsMultiplayer() ? 1 : 0;
 }

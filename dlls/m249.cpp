@@ -299,4 +299,9 @@ void CM249::SetWeaponData(const weapon_data_t &data)
 	UpdateTape(data.iuser1);
 }
 
+int CM249::ViewModelBody()
+{
+	return BodyFromClip();
+}
+
 #endif

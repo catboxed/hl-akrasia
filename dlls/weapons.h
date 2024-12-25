@@ -311,6 +311,7 @@ public:
 
 	virtual CBasePlayerWeapon *MyWeaponPointer( void ) { return this; }
 	virtual bool CanBeDropped() { return true; }
+	virtual int ViewModelBody() { return 0; }
 	float GetNextAttackDelay( float delay );
 	bool InZoom();
 
@@ -486,6 +487,7 @@ public:
 		return false;
 #endif
 	}
+	int ViewModelBody() override;
 
 	const char* MyWModel() { return "models/w_357.mdl"; }
 private:
@@ -1217,6 +1219,8 @@ public:
 
 	void GetWeaponData(weapon_data_t& data);
 	void SetWeaponData(const weapon_data_t& data);
+
+	int ViewModelBody() override;
 
 	void UpdateTape();
 	void UpdateTape(int clip);
