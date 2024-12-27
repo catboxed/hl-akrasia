@@ -132,15 +132,15 @@ struct MatTextureComparator
 {
 	bool operator()(const MatTexture& lhs, const char* rhs)
 	{
-		return stricmp(lhs.name.c_str(), rhs) < 0;
+		return strnicmp(lhs.name.c_str(), rhs, CBTEXTURENAMEMAX - 1) < 0;
 	}
 	bool operator()(const char* lhs, const MatTexture& rhs)
 	{
-		return stricmp(lhs, rhs.name.c_str()) < 0;
+		return strnicmp(lhs, rhs.name.c_str(), CBTEXTURENAMEMAX - 1) < 0;
 	}
 	bool operator()(const MatTexture& lhs, const MatTexture& rhs)
 	{
-		return stricmp(lhs.name.c_str(), rhs.name.c_str()) < 0;
+		return strnicmp(lhs.name.c_str(), rhs.name.c_str(), CBTEXTURENAMEMAX - 1) < 0;
 	}
 };
 
