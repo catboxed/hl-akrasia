@@ -285,6 +285,8 @@ public:
 	void RenewItems(void);
 	void PackDeadPlayerItems( void );
 	void RemoveAllItems( int stripFlags );
+	void RemoveAllWeapons();
+	void RemoveAllAmmo();
 	bool SwitchWeapon( CBasePlayerWeapon *pWeapon );
 	bool SwitchToBestWeapon();
 
@@ -414,6 +416,7 @@ public:
 	void BarnacleVictimReleased ( void );
 	static int GetAmmoIndex(const char *psz);
 	int AmmoInventory( int iAmmoIndex );
+	void ClearAmmoByIndex(int iAmmoIndex);
 	int Illumination( void );
 
 	void ResetAutoaim( void );

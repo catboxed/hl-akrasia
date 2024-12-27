@@ -7886,6 +7886,47 @@
 	maxspeed(string) : "Maxspeed multiplier [0=reset]" : 0
 ]
 
+@PointClass base(Targetname) = player_stash : "Stash player weapons and optionally other items, and return them when it's triggered again"
+[
+	weapons_policy(choices) : "Weapons stash policy" : 1 = 
+	[
+		0 : "Don't stash"
+		1 : "Move to stash"
+	]
+	health_policy(choices) : "Health stash policy" = 
+	[
+		0 : "Don't stash"
+		1 : "Stash; reset player's health"
+		2 : "Copy; keep player's health"
+	]
+	armor_policy(choices) : "Armor stash policy" =
+	[
+		0 : "Don't stash"
+		1 : "Stash; reset player's armor"
+		2 : "Copy; keep player's armor"
+	]
+	light_policy(choices) : "Light item policy" = 
+	[
+		0 : "Don't stash"
+		1 : "Move to stash"
+		2 : "Store a copy"
+	]
+	longjump_policy(choices) : "Longjump policy" = 
+	[
+		0 : "Don't stash"
+		1 : "Move to stash"
+		2 : "Store a copy"
+	]
+	inventory_policy(choices) : "Inventory items policy" = 
+	[
+		0 : "Don't stash"
+		1 : "Move to stash"
+		2 : "Store a copy"
+	]
+	trigger_on_stash(target_destination) : "Fire on Stash"
+	trigger_on_unstash(target_destination) : "Fire on Unstash"
+]
+
 @PointClass base(Targetname) size(-16 -16 -16, 16 16 16) = player_weaponstrip : "Strips player's weapons and items"
 [
 	spawnflags(Flags) =

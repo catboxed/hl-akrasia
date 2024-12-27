@@ -1118,23 +1118,47 @@ void CBasePlayer::PackDeadPlayerItems( void )
 
 void CBasePlayer::RemoveAllItems( int stripFlags )
 {
-	int i;
-
-	if( m_pActiveItem )
-	{
-		ResetAutoaim();
-		m_pActiveItem->Holster();
-		m_pActiveItem = NULL;
-	}
-
-	m_pLastItem = NULL;
+	RemoveAllWeapons();
 
 	if( m_pTank != 0 )
 		m_pTank->Use( this, this, USE_OFF, 0 );
 
 	m_iTrain = TRAIN_NEW; // turn off train
 
-	for( i = 0; i < MAX_WEAPONS; i++ )
+	if (FBitSet(stripFlags, STRIP_SUITLIGHT) || !FBitSet(stripFlags, STRIP_DONT_TURNOFF_FLASHLIGHT)) {
+		SuitLightTurnOff(false);
+	}
+
+	if( FBitSet(stripFlags, STRIP_SUIT) )
+		m_iItemsBits &= ~PLAYER_ITEM_SUIT;
+	if ( FBitSet(stripFlags, STRIP_SUITLIGHT) )
+		RemoveSuitLight();
+
+	if (FBitSet(stripFlags, STRIP_LONGJUMP)) {
+		SetLongjump(false);
+	}
+
+	RemoveAllAmmo();
+
+	if( satchelfix.value )
+		DeactivateSatchels( this );
+
+	UpdateClientData();
+
+	SendCurWeaponClear();
+}
+
+void CBasePlayer::RemoveAllWeapons()
+{
+	if( m_pActiveItem )
+	{
+		ResetAutoaim();
+		m_pActiveItem->Holster();
+		m_pActiveItem = NULL;
+	}
+	m_pLastItem = NULL;
+
+	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
 		if (m_rgpPlayerWeapons[i]) {
 			m_rgpPlayerWeapons[i]->Drop();
@@ -1146,29 +1170,13 @@ void CBasePlayer::RemoveAllItems( int stripFlags )
 	pev->viewmodel = 0;
 	pev->weaponmodel = 0;
 
-	if (FBitSet(stripFlags, STRIP_SUITLIGHT) || !FBitSet(stripFlags, STRIP_DONT_TURNOFF_FLASHLIGHT)) {
-		SuitLightTurnOff(false);
-	}
-
 	m_WeaponBits = 0ULL;
-	if( FBitSet(stripFlags, STRIP_SUIT) )
-		m_iItemsBits &= ~PLAYER_ITEM_SUIT;
-	if ( FBitSet(stripFlags, STRIP_SUITLIGHT) )
-		RemoveSuitLight();
+}
 
-	if (FBitSet(stripFlags, STRIP_LONGJUMP)) {
-		SetLongjump(false);
-	}
-
-	for( i = 0; i < MAX_AMMO_TYPES; i++ )
+void CBasePlayer::RemoveAllAmmo()
+{
+	for (int i = 0; i < MAX_AMMO_TYPES; i++)
 		m_rgAmmo[i] = 0;
-
-	if( satchelfix.value )
-		DeactivateSatchels( this );
-
-	UpdateClientData();
-
-	SendCurWeaponClear();
 }
 
 /*
@@ -5024,12 +5032,16 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory( int iAmmoIndex )
 {
-	if( iAmmoIndex == -1 )
-	{
+	if( iAmmoIndex == -1 || iAmmoIndex >= MAX_AMMO_TYPES )
 		return -1;
-	}
-
 	return m_rgAmmo[iAmmoIndex];
+}
+
+void CBasePlayer::ClearAmmoByIndex(int iAmmoIndex)
+{
+	if (iAmmoIndex < 0 || iAmmoIndex >= MAX_AMMO_TYPES)
+		return;
+	m_rgAmmo[iAmmoIndex] = 0;
 }
 
 int CBasePlayer::GetAmmoIndex( const char *psz )
@@ -7371,6 +7383,303 @@ void CRevertSaved::LoadThink( void )
 		}
 	}
 }
+
+enum
+{
+	PLAYER_STASH_STASH = 1,
+	PLAYER_STASH_COPY = 2
+};
+
+class CPlayerStash : public CWeaponBox
+{
+public:
+	void Precache() {}
+	void Spawn()
+	{
+		Precache();
+		pev->solid = SOLID_NOT;
+		pev->effects = EF_NODRAW;
+	}
+	void Touch( CBaseEntity *pOther ) {}
+	void KeyValue( KeyValueData *pkvd )
+	{
+		if (FStrEq(pkvd->szKeyName, "weapons_policy"))
+		{
+			m_weaponsPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "health_policy"))
+		{
+			m_healthPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "armor_policy"))
+		{
+			m_armorPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "light_policy"))
+		{
+			m_lightPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "longjump_policy"))
+		{
+			m_longjumpPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "inventory_policy"))
+		{
+			m_inventoryPolicy = (short)atoi(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "trigger_on_stash"))
+		{
+			m_triggerOnStash = ALLOC_STRING(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else if (FStrEq(pkvd->szKeyName, "trigger_on_unstash"))
+		{
+			m_triggerOnUnstash = ALLOC_STRING(pkvd->szValue);
+			pkvd->fHandled = true;
+		}
+		else
+			CBaseDelay::KeyValue(pkvd);
+	}
+	int ObjectCaps() { return CBaseDelay::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+	{
+		if (!ShouldToggle(useType, m_stashed))
+			return;
+
+		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+		if (!pPlayer || !pPlayer->IsAlive())
+			return;
+
+		if (m_stashed)
+		{
+			m_stashed = false;
+			UnstashToPlayer(pPlayer);
+		}
+		else
+		{
+			m_stashed = true;
+			StashFromPlayer(pPlayer);
+		}
+	}
+	void StashFromPlayer(CBasePlayer* pPlayer)
+	{
+		if (m_healthPolicy > 0)
+		{
+			pev->health = pPlayer->pev->health;
+			pev->max_health = pPlayer->pev->max_health;
+			if (m_healthPolicy == PLAYER_STASH_STASH)
+			{
+				pPlayer->pev->health = pPlayer->pev->max_health;
+			}
+		}
+		if (m_armorPolicy > 0)
+		{
+			pev->armorvalue = pPlayer->pev->armorvalue;
+			pev->armortype = pPlayer->MaxArmor();
+			if (m_armorPolicy == PLAYER_STASH_STASH)
+			{
+				pPlayer->pev->armorvalue = 0;
+			}
+		}
+		if (m_lightPolicy > 0)
+		{
+			m_flashlightStashed = pPlayer->HasFlashlight();
+			m_nvgStashed = pPlayer->HasNVG();
+			if (m_lightPolicy == PLAYER_STASH_STASH)
+			{
+				pPlayer->RemoveSuitLight();
+			}
+		}
+		if (m_longjumpPolicy > 0)
+		{
+			m_longjumpStashed = pPlayer->m_fLongJump;
+			if (m_longjumpPolicy == PLAYER_STASH_STASH)
+			{
+				pPlayer->SetLongjump(false);
+			}
+		}
+		if (m_inventoryPolicy > 0)
+		{
+			for (size_t i=0; i<ARRAYSIZE(m_inventoryItems); ++i)
+			{
+				m_inventoryItems[i] = pPlayer->m_inventoryItems[i];
+				m_inventoryItemCounts[i] = pPlayer->m_inventoryItemCounts[i];
+			}
+			if (m_inventoryPolicy == PLAYER_STASH_STASH)
+			{
+				pPlayer->RemoveAllInventoryItems();
+			}
+		}
+
+		if (m_weaponsPolicy > 0)
+		{
+			for (int i = 0; i < MAX_WEAPONS; ++i)
+			{
+				CBasePlayerWeapon *pPlayerItem = pPlayer->WeaponById(i);
+				if (pPlayerItem)
+				{
+					PackWeapon(pPlayerItem);
+				}
+			}
+
+			for (int i = 0; i < MAX_AMMO_TYPES; ++i)
+			{
+				int ammoCount =  pPlayer->AmmoInventory(i);
+				if (ammoCount > 0)
+				{
+					const AmmoType* ammoType = g_AmmoRegistry.GetByIndex(i);
+					if (ammoType)
+					{
+						PackAmmo(MAKE_STRING(ammoType->name), ammoCount);
+						pPlayer->ClearAmmoByIndex(i);
+					}
+				}
+			}
+
+			pPlayer->UpdateClientData();
+			pPlayer->RemoveAllWeapons();
+			pPlayer->RemoveAllAmmo();
+			pPlayer->SendCurWeaponClear();
+		}
+
+		if (!FStringNull(m_triggerOnStash))
+			FireTargets(STRING(m_triggerOnStash), pPlayer, this);
+	}
+
+	void UnstashToPlayer(CBasePlayer* pPlayer)
+	{
+		if (m_healthPolicy > 0)
+		{
+			pPlayer->pev->health = pev->health;
+			pPlayer->pev->max_health = pev->max_health;
+		}
+
+		if (m_armorPolicy > 0)
+		{
+			pPlayer->SetArmor(pev->armorvalue, true);
+			pPlayer->SetMaxArmor(pev->armortype, false);
+		}
+
+		if (m_lightPolicy > 0)
+		{
+			if (m_flashlightStashed)
+			{
+				pPlayer->SetFlashlight();
+				m_flashlightStashed = false;
+			}
+			if (m_nvgStashed)
+			{
+				pPlayer->SetNVG();
+				m_nvgStashed = false;
+			}
+		}
+
+		if (m_longjumpPolicy > 0)
+		{
+			if (m_longjumpStashed)
+			{
+				pPlayer->SetLongjump(true);
+				m_longjumpStashed = false;
+			}
+		}
+
+		if (m_inventoryPolicy > 0)
+		{
+			for (size_t i=0; i<ARRAYSIZE(m_inventoryItems); ++i)
+			{
+				if (!FStringNull(m_inventoryItems[i]))
+				{
+					pPlayer->GiveInventoryItem(m_inventoryItems[i], m_inventoryItemCounts[i], true);
+				}
+				m_inventoryItems[i] = iStringNull;
+				m_inventoryItemCounts[i] = 0;
+			}
+		}
+
+		if (m_weaponsPolicy > 0)
+		{
+			for(int i = 0; i < MAX_AMMO_TYPES; i++)
+			{
+				if(!FStringNull(m_rgiszAmmo[i]))
+				{
+					pPlayer->GiveAmmo(m_rgAmmo[i], STRING(m_rgiszAmmo[i]));
+					m_rgiszAmmo[i] = iStringNull;
+					m_rgAmmo[i] = 0;
+				}
+			}
+
+			for(int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				CBasePlayerWeapon *pItem = m_rgpPlayerWeapons[i];
+				if (pItem)
+				{
+					m_rgpPlayerWeapons[i] = NULL;
+					int addResult = pPlayer->AddPlayerItem(pItem);
+					if (addResult == DID_NOT_GET_ITEM)
+					{
+						pItem->Kill();
+					}
+				}
+			}
+		}
+
+		if (!FStringNull(m_triggerOnUnstash))
+			FireTargets(STRING(m_triggerOnUnstash), pPlayer, this);
+	}
+
+	int		Save( CSave &save );
+	int		Restore( CRestore &restore );
+	static	TYPEDESCRIPTION m_SaveData[];
+
+private:
+	bool m_stashed;
+	short m_weaponsPolicy;
+
+	short m_healthPolicy;
+	short m_armorPolicy;
+
+	short m_lightPolicy;
+	bool m_flashlightStashed;
+	bool m_nvgStashed;
+
+	short m_longjumpPolicy;
+	bool m_longjumpStashed;
+
+	short m_inventoryPolicy;
+	string_t m_inventoryItems[MAX_INVENTORY_ITEMS];
+	short m_inventoryItemCounts[MAX_INVENTORY_ITEMS];
+
+	string_t m_triggerOnStash;
+	string_t m_triggerOnUnstash;
+};
+
+LINK_ENTITY_TO_CLASS( player_stash, CPlayerStash )
+
+TYPEDESCRIPTION	CPlayerStash::m_SaveData[] =
+{
+	DEFINE_FIELD(CPlayerStash, m_stashed, FIELD_BOOLEAN),
+	DEFINE_FIELD(CPlayerStash, m_weaponsPolicy, FIELD_SHORT),
+	DEFINE_FIELD(CPlayerStash, m_healthPolicy, FIELD_SHORT),
+	DEFINE_FIELD(CPlayerStash, m_armorPolicy, FIELD_SHORT),
+	DEFINE_FIELD(CPlayerStash, m_lightPolicy, FIELD_SHORT),
+	DEFINE_FIELD(CPlayerStash, m_flashlightStashed, FIELD_BOOLEAN),
+	DEFINE_FIELD(CPlayerStash, m_nvgStashed, FIELD_BOOLEAN),
+	DEFINE_FIELD(CPlayerStash, m_longjumpPolicy, FIELD_SHORT),
+	DEFINE_FIELD(CPlayerStash, m_longjumpStashed, FIELD_BOOLEAN),
+	DEFINE_FIELD(CPlayerStash, m_inventoryPolicy, FIELD_SHORT),
+	DEFINE_ARRAY(CPlayerStash, m_inventoryItems, FIELD_STRING, MAX_INVENTORY_ITEMS),
+	DEFINE_ARRAY(CPlayerStash, m_inventoryItemCounts, FIELD_SHORT, MAX_INVENTORY_ITEMS),
+	DEFINE_FIELD(CPlayerStash, m_triggerOnStash, FIELD_STRING),
+	DEFINE_FIELD(CPlayerStash, m_triggerOnUnstash, FIELD_STRING),
+};
+
+IMPLEMENT_SAVERESTORE( CPlayerStash, CWeaponBox )
 
 //=========================================================
 // Multiplayer intermission spots.

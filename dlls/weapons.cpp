@@ -909,7 +909,8 @@ bool CBasePlayerWeapon::AddSecondaryAmmo(int iCount)
 	if( iIdAmmo > 0 )
 	{
 		m_iSecondaryAmmoType = iIdAmmo;
-		EmitSoundScript(Items::ammoPickupSoundScript);
+		if (iCount > 0)
+			EmitSoundScript(Items::ammoPickupSoundScript);
 	}
 	return iIdAmmo > 0;
 }
@@ -1227,9 +1228,9 @@ void CWeaponBox::Touch( CBaseEntity *pOther )
 int CWeaponBox::ObjectCaps()
 {
 	if (IsPickableByUse(this) && !(pev->effects & EF_NODRAW)) {
-		return CBaseEntity::ObjectCaps() | FCAP_IMPULSE_USE;
+		return CBaseDelay::ObjectCaps() | FCAP_IMPULSE_USE;
 	} else {
-		return CBaseEntity::ObjectCaps();
+		return CBaseDelay::ObjectCaps();
 	}
 }
 
