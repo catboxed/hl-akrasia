@@ -969,7 +969,6 @@ void CBasePlayer::PackDeadPlayerItems( void )
 {
 	int iWeaponRules;
 	int iAmmoRules;
-	int i;
 	CBasePlayerWeapon *rgpPackWeapons[MAX_WEAPONS] = {0,};
 	AmmoCountInfo iPackAmmo[MAX_AMMO_TYPES];
 	int iPW = 0;// index into packweapons array
@@ -988,12 +987,12 @@ void CBasePlayer::PackDeadPlayerItems( void )
 	}
 
 	// go through all of the weapons and make a list of the ones to pack
-	for( i = 0; i < MAX_WEAPONS && iPW < MAX_WEAPONS; i++ )
+	for( int i = 0; i < MAX_WEAPONS && iPW < MAX_WEAPONS; i++ )
 	{
 		// there's a weapon here. Should I pack it?
 		CBasePlayerWeapon *pPlayerItem = m_rgpPlayerWeapons[i];
 
-		if ( pPlayerItem && iPW < MAX_WEAPONS )
+		if ( pPlayerItem && pPlayerItem->CanBeDropped() && iPW < MAX_WEAPONS )
 		{
 			int ammoIndex = GetAmmoIndex( pPlayerItem->pszAmmo1() );
 			if (ammoIndex >= 0) {
@@ -4082,6 +4081,9 @@ void CBasePlayer::SelectItem( const char *pstr )
 	if( pItem == m_pActiveItem )
 		return;
 
+	if( !pItem->CanDeploy())
+		return;
+
 	ResetAutoaim();
 
 	// FIX, this needs to queue them up and delay
@@ -4111,6 +4113,9 @@ void CBasePlayer::SelectLastItem( void )
 	{
 		return;
 	}
+
+	if( !m_pLastItem->CanDeploy())
+		return;
 
 	ResetAutoaim();
 
