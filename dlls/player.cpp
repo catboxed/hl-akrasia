@@ -1124,7 +1124,7 @@ void CBasePlayer::RemoveAllItems( int stripFlags )
 
 	m_iTrain = TRAIN_NEW; // turn off train
 
-	if (FBitSet(stripFlags, STRIP_SUITLIGHT) || !FBitSet(stripFlags, STRIP_DONT_TURNOFF_FLASHLIGHT)) {
+	if (FBitSet(stripFlags, STRIP_SUITLIGHT)) {
 		SuitLightTurnOff(false);
 	}
 
