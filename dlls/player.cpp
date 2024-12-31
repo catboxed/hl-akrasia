@@ -4081,9 +4081,6 @@ void CBasePlayer::SelectItem( const char *pstr )
 	if( pItem == m_pActiveItem )
 		return;
 
-	if( !pItem->CanDeploy())
-		return;
-
 	ResetAutoaim();
 
 	// FIX, this needs to queue them up and delay
@@ -4113,9 +4110,6 @@ void CBasePlayer::SelectLastItem( void )
 	{
 		return;
 	}
-
-	if( !m_pLastItem->CanDeploy())
-		return;
 
 	ResetAutoaim();
 
