@@ -44,6 +44,7 @@
 #include "common_soundscripts.h"
 #include "error_collector.h"
 #include "spritehint_flags.h"
+#include "clamp.h"
 
 #if FEATURE_ROPE
 #include "ropes.h"
@@ -5204,8 +5205,7 @@ void CBasePlayer::UpdateClientData( void )
 
 	if( pev->health != m_iClientHealth || (int)pev->max_health != m_iClientMaxHealth )
 	{
-#define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) )
-		int iHealth = clamp( pev->health, 0, 9999 ); // make sure that no negative health values are sent
+		int iHealth = (int)clamp( pev->health, 0.0f, 9999.0f ); // make sure that no negative health values are sent
 		if( pev->health > 0.0f && pev->health <= 1.0f )
 			iHealth = 1;
 

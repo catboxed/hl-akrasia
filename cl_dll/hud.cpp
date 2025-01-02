@@ -23,6 +23,7 @@
 #include "parsemsg.h"
 #include "parsetext.h"
 #include "arraysize.h"
+#include "clamp.h"
 #if USE_VGUI
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
@@ -169,16 +170,6 @@ static void CreateBooleanCvarConditionally(cvar_t*& cvarPtr, const char* name, c
 		cvarPtr = CVAR_CREATE_BOOLVALUE( name, booleanValue.enabled_by_default, FCVAR_ARCHIVE );
 	else
 		cvarPtr = 0;
-}
-
-template<typename T>
-static T boundValue(T min, T value, T max)
-{
-	if (value < min)
-		return min;
-	if (value > max)
-		return max;
-	return value;
 }
 
 #if USE_VGUI
@@ -1504,7 +1495,7 @@ int CHud::CalcMinHUDAlpha()
 
 	const ConfigurableBoundedValue& min_alpha = clientFeatures.hud_min_alpha;
 	const int value = m_pCvarMinAlpha ? m_pCvarMinAlpha->value : min_alpha.defaultValue;
-	return boundValue(min_alpha.minValue, value, min_alpha.maxValue);
+	return clamp(value, min_alpha.minValue, min_alpha.maxValue);
 }
 
 bool CHud::DrawArmorNearHealth()
@@ -1536,7 +1527,7 @@ float CHud::FlashlightRadius()
 {
 	const FlashlightFeatures& flashlight = clientFeatures.flashlight;
 	const int radius = cl_flashlight_radius && cl_flashlight_radius->value > 0.0f ? cl_flashlight_radius->value : flashlight.radius.defaultValue;
-	return boundValue(flashlight.radius.minValue, radius, flashlight.radius.maxValue);
+	return clamp(radius, flashlight.radius.minValue, flashlight.radius.maxValue);
 }
 
 float CHud::FlashlightDistance()
@@ -1548,7 +1539,7 @@ float CHud::FlashlightFadeDistance()
 {
 	const FlashlightFeatures& flashlight = clientFeatures.flashlight;
 	const int distance = cl_flashlight_fade_distance && cl_flashlight_fade_distance->value > 0.0f ? cl_flashlight_fade_distance->value : flashlight.fade_distance.defaultValue;
-	return boundValue(flashlight.fade_distance.minValue, distance, flashlight.fade_distance.maxValue);
+	return clamp(distance, flashlight.fade_distance.minValue, flashlight.fade_distance.maxValue);
 }
 
 color24 CHud::FlashlightColor()
@@ -1557,9 +1548,9 @@ color24 CHud::FlashlightColor()
 	UnpackRGB(r,g,b, clientFeatures.flashlight.color);
 
 	color24 color;
-	color.r = boundValue(0, r, 255);
-	color.g = boundValue(0, g, 255);
-	color.b = boundValue(0, b, 255);
+	color.r = clamp(r, 0, 255);
+	color.g = clamp(g, 0, 255);
+	color.b = clamp(b, 0, 255);
 	return color;
 }
 

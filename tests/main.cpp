@@ -1,9 +1,18 @@
 #include <gtest/gtest.h>
 
+#include "clamp.h"
 #include "min_and_max.h"
 #include "random_utils.h"
 #include "string_utils.h"
 #include "template_property_types.h"
+
+TEST(Clamp, Cases) {
+	EXPECT_EQ(clamp(4, 1, 5), 4);
+	EXPECT_EQ(clamp(0, 1, 5), 1);
+	EXPECT_EQ(clamp(6, 1, 5), 5);
+	EXPECT_EQ(clamp(-6, -5, 0), -5);
+	EXPECT_EQ(clamp(1, -5, 0), 0);
+}
 
 TEST(MinAndMax, Cases) {
 	EXPECT_EQ(Q_min(4, 6), 4);

@@ -41,15 +41,6 @@ extern "C"
 
 #define FLASHLIGHT_DISTANCE 2048.0f
 
-static float boundValue(float min, float value, float max)
-{
-	if (value < min)
-		return min;
-	if (value > max)
-		return max;
-	return value;
-}
-
 void DrawFlashlight()
 {
 	const float distance = gHUD.FlashlightDistance();
