@@ -211,7 +211,6 @@ public:
 	bool			m_fNoPlayerSound;	// a debugging feature. Player makes no sound if this is true.
 	bool			m_fLongJump; // does this player have the longjump module?
 
-	int			m_iUpdateTime;		// stores the number of frame ticks before sending HUD update messages
 	int			m_iClientHealth;	// the health currently known by the client.  If this changes, send a new
 	int			m_iClientMaxHealth;
 	int			m_iClientBattery;	// the Battery currently known by the client.  If this changes, send a new
