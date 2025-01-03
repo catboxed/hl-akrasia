@@ -5129,7 +5129,7 @@ void CBasePlayer::UpdateClientData( void )
 				}
 			}
 
-			if ( g_psv_developer->value > 0 && !g_pGameRules->IsMultiplayer() || (entindex() == 1 && !IS_DEDICATED_SERVER()) )
+			if ( !g_pGameRules->IsMultiplayer() || (entindex() == 1 && !IS_DEDICATED_SERVER()) )
 			{
 				if (g_errorCollector.HasErrors())
 				{
