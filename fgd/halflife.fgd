@@ -2076,8 +2076,7 @@
 	]
 ]
 
-@SolidClass base(Targetname, RainFlags, RainBaseParams, RainParticlesParams) = func_rainvolume : "Brush version of env_rain, localized in the designated area. The rain height and distance depend on the brush size."
-[]
+@SolidClass base(Targetname, RainFlags, RainBaseParams, RainParticlesParams) = func_rainvolume : "Brush version of env_rain, localized in the designated area. The rain height and distance depend on the brush size." []
 
 @BaseClass = SnowFlags
 [
@@ -2133,8 +2132,7 @@
 
 @PointClass base(Targetname, SnowFlags, SnowBaseParams, EnvSnowParams, SnowParticlesParams) = env_snow : "Similar to snow in Counter Strike, but with configurable options" []
 
-@SolidClass base(Targetname, SnowFlags, SnowBaseParams, SnowParticlesParams) = func_snowvolume : "Brush version of env_rain, localized in the designated area. The rain height and distance depend on the brush size."
-[]
+@SolidClass base(Targetname, SnowFlags, SnowBaseParams, SnowParticlesParams) = func_snowvolume : "Brush version of env_rain, localized in the designated area. The rain height and distance depend on the brush size." []
 
 @PointClass base(Targetname, RenderFields) size(-16 -16 -16, 16 16 16) color(100 100 0) = env_render : "Render Controls"
 [
@@ -3762,7 +3760,10 @@
 
 @PointClass iconsprite("sprites/light.spr") base(Target, Targetname, Light, ZHLT_point) flags(Light) = light : "Invisible lightsource." : "http://twhl.info/wiki.php?id=148"
 [
-	spawnflags(Flags) = [ 1 : "Initially dark" : 0 : "If this is enabled, the entity will need to be triggered to work." ]
+	spawnflags(Flags) =
+	[
+		1 : "Initially dark" : 0 : "If this is enabled, the entity will need to be triggered to work."
+	]
 ]
 
 @PointClass iconsprite("sprites/light.spr") base(Targetname, Target, Angles, ZHLT_point) flags(Light) = light_spot : "The light_spot entity allows you to create direct beams of light (like from a, err, spotlight)." : "http://twhl.info/wiki.php?id=147"
@@ -3776,7 +3777,10 @@
 		0 : "No"
 		1 : "Yes"
 	]
-	spawnflags(Flags) = [ 1 : "Initially dark" : 0 : "If this is enabled, the entity will need to be triggered to work." ]
+	spawnflags(Flags) =
+	[
+		1 : "Initially dark" : 0 : "If this is enabled, the entity will need to be triggered to work."
+	]
 	style(Choices) : "Appearance" : 0 : "Light appearance. Values:" =
 	[
 		0 : "Normal"
@@ -7762,7 +7766,7 @@
 		"Shocks" : "Shocks"
 		"Penguins" : "Penguins"
 	]
-	"item_name"(string) : "Inventory item name"
+	item_name(string) : "Inventory item name"
 ]
 
 @PointClass base(Targetname) = player_capabilities : "Enable/disable certain player's capabilities"
@@ -8413,30 +8417,6 @@
 		0 : "No change"
 		247 : "Human (red)"
 		195 : "Alien (yellow)"
-	]
-	prisonerto(choices) : "Act as Prisoner to" =
-	[
-		-1 : "Reset"
-		0 : "No change"
-		1 : "Machine"
-		2 : "Player"
-		3 : "Human passive"
-		4 : "Human military"
-		5 : "Alien military"
-		6 : "Alien passive"
-		7 : "Alien monster"
-		8 : "Alien prey"
-		9 : "Alien predator"
-		10 : "Insect"
-		11 : "Player ally"
-		12 : "Player bioweapon"
-		13 : "Alien bioweapon"
-		14 : "Race X predator"
-		15 : "Race X shock"
-		16 : "Opfor ally"
-		17 : "Blackops"
-		18 : "Snark"
-		19 : "Gargantua"
 	]
 	ignoredby(choices) : "Ignored by classify" =
 	[
