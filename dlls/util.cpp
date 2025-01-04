@@ -1499,10 +1499,6 @@ void UTIL_StringToRandomVector( float *pVector, const char *pString )
 	}
 	if (j < 2)
 	{
-		/*
-		ALERT( at_error, "Bad field in entity!! %s:%s == \"%s\"\n",
-			pkvd->szClassName, pkvd->szKeyName, pkvd->szValue );
-		*/
 		for (j = j+1;j < 3; j++)
 			pVector[j] = 0;
 	}
@@ -2134,7 +2130,14 @@ void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd )
 				break;
 			case FIELD_POSITION_VECTOR:
 			case FIELD_VECTOR:
-				UTIL_StringToVector( (float *)( (char *)pev + pField->fieldOffset ), pkvd->szValue );
+			{
+				int componentsRead = 0;
+				UTIL_StringToVector( (float *)( (char *)pev + pField->fieldOffset ), pkvd->szValue, &componentsRead );
+				if (componentsRead != 3)
+				{
+					ALERT( at_warning, "Incorrect number of components for vector. %s:%s == \"%s\"\n", pkvd->szClassName, pField->fieldName, pkvd->szValue );
+				}
+			}
 				break;
 			default:
 			case FIELD_EVARS:
@@ -2142,7 +2145,7 @@ void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd )
 			case FIELD_EDICT:
 			case FIELD_ENTITY:
 			case FIELD_POINTER:
-				ALERT( at_error, "Bad field in entity!!\n" );
+				ALERT( at_error, "Bad field in entity!! %s:%s == \"%s\"\n", pkvd->szClassName, pField->fieldName, pkvd->szValue );
 				break;
 			}
 			pkvd->fHandled = true;

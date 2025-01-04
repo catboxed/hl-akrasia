@@ -193,7 +193,7 @@ void UTIL_StringToVector( float *pVector, const char *pString, int* componentsRe
 	char *pstr, *pfront, tempString[128];
 	int j;
 
-	strncpyEnsureTermination( tempString, pString, sizeof( tempString ));
+	strncpyEnsureTermination( tempString, pString );
 	pstr = pfront = tempString;
 
 	int componentsParsed = 0;
@@ -214,10 +214,6 @@ void UTIL_StringToVector( float *pVector, const char *pString, int* componentsRe
 		*componentsRead = componentsParsed;
 	if( j < 2 )
 	{
-		/*
-		ALERT( at_error, "Bad field in entity!! %s:%s == \"%s\"\n",
-			pkvd->szClassName, pkvd->szKeyName, pkvd->szValue );
-		*/
 		for( j = j + 1;j < 3; j++ )
 			pVector[j] = 0;
 	}
