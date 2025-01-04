@@ -4500,7 +4500,6 @@ void CDeadMonster::Precache()
 void CDeadMonster::SpawnHelper(const char* defaultModel, int bloodColor, int health)
 {
 	Precache();
-	PrecacheMyModel(defaultModel);
 	SetMyModel(defaultModel);
 
 	pev->effects &= EF_INVLIGHT;
