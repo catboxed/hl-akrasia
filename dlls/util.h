@@ -311,6 +311,7 @@ extern void			UTIL_Ricochet( const Vector &position, float scale );
 extern Vector		UTIL_StringToVector( const char *str );
 extern void			UTIL_StringToRandomVector( float *pVector, const char *pString );
 extern void			UTIL_StringToIntArray( int *pVector, int count, const char *pString );
+extern void			UTIL_StringToCharArray( char *pVector, int count, const char *pString );
 extern Vector		UTIL_ClampVectorToBox( const Vector &input, const Vector &clampSize );
 
 extern char			*UTIL_VarArgs( const char *format, ... );

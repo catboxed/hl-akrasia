@@ -1517,17 +1517,18 @@ void UTIL_StringToRandomVector( float *pVector, const char *pString )
 	}
 }
 
-void UTIL_StringToIntArray( int *pVector, int count, const char *pString )
+template<typename T>
+void UTIL_StringToIntegerArray( T *pVector, int count, const char *pString )
 {
 	char *pstr, *pfront, tempString[128];
 	int j;
 
-	strncpyEnsureTermination( tempString, pString, sizeof( tempString ));
+	strncpyEnsureTermination( tempString, pString );
 	pstr = pfront = tempString;
 
-	for( j = 0; j < count; j++ )			// lifted from pr_edict.c
+	for( j = 0; j < count; j++ )
 	{
-		pVector[j] = atoi( pfront );
+		pVector[j] = (T)atoi( pfront );
 
 		while( *pstr && *pstr != ' ' )
 			pstr++;
@@ -1541,6 +1542,16 @@ void UTIL_StringToIntArray( int *pVector, int count, const char *pString )
 	{
 		pVector[j] = 0;
 	}
+}
+
+void UTIL_StringToIntArray( int *pVector, int count, const char *pString )
+{
+	UTIL_StringToIntegerArray(pVector, count, pString);
+}
+
+void UTIL_StringToCharArray( char *pVector, int count, const char *pString )
+{
+	UTIL_StringToIntegerArray(pVector, count, pString);
 }
 
 Vector UTIL_ClampVectorToBox( const Vector &input, const Vector &clampSize )
@@ -2138,6 +2149,9 @@ void EntvarsKeyvalue( entvars_t *pev, KeyValueData *pkvd )
 					ALERT( at_warning, "Incorrect number of components for vector. %s:%s == \"%s\"\n", pkvd->szClassName, pField->fieldName, pkvd->szValue );
 				}
 			}
+				break;
+			case FIELD_CHARACTER:
+				UTIL_StringToCharArray((char *)pev + pField->fieldOffset, pField->fieldSize, pkvd->szValue);
 				break;
 			default:
 			case FIELD_EVARS:
