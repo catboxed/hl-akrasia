@@ -939,6 +939,7 @@ public:
 	void Precache( void );
 	void Touch ( CBaseEntity *pOther );
 	void Move( CBaseEntity *pMover, int push );
+	void PreEntvarsKeyvalue( KeyValueData* pkvd );
 	void KeyValue( KeyValueData *pkvd );
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	NODE_LINKENT HandleLinkEnt(int afCapMask, bool nodeQueryStatic);
@@ -1019,35 +1020,20 @@ void CPushable::Precache( void )
 		CBreakable::Precache();
 }
 
+void CPushable::PreEntvarsKeyvalue( KeyValueData* pkvd )
+{
+	if (FStrEq(pkvd->szKeyName, "size"))
+	{
+		// just ignore the 'size' key-value. It used to be incorrectly set in fgd.
+		pkvd->fHandled = true;
+	}
+	else
+		CBreakable::PreEntvarsKeyvalue(pkvd);
+}
+
 void CPushable::KeyValue( KeyValueData *pkvd )
 {
-	if( FStrEq( pkvd->szKeyName, "size" ) )
-	{
-		int bbox = atoi( pkvd->szValue );
-		pkvd->fHandled = true;
-
-		switch( bbox )
-		{
-		case 0:
-			// Point
-			UTIL_SetSize( pev, Vector( -8.0f, -8.0f, -8.0f ), Vector( 8.0f, 8.0f, 8.0f ) );
-			break;
-		case 2:
-			// Big Hull!?!?	!!!BUGBUG Figure out what this hull really is
-			UTIL_SetSize( pev, VEC_DUCK_HULL_MIN * 2.0f, VEC_DUCK_HULL_MAX * 2.0f );
-			break;
-		case 3:
-			// Player duck
-			UTIL_SetSize( pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX );
-			break;
-		default:
-		case 1:
-			// Player
-			UTIL_SetSize( pev, VEC_HULL_MIN, VEC_HULL_MAX );
-			break;
-		}
-	}
-	else if( FStrEq( pkvd->szKeyName, "buoyancy" ) )
+	if( FStrEq( pkvd->szKeyName, "buoyancy" ) )
 	{
 		pev->skin = atoi( pkvd->szValue );
 		pkvd->fHandled = true;

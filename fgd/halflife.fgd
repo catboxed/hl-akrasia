@@ -2867,13 +2867,6 @@
 
 @SolidClass base(Breakable, BreakableSpawnFlags, RenderFields, ZHLT) = func_pushable : "Pushable object"
 [
-	size(choices) : "Hull Size" : 0 =
-	[
-		0: "Point size"
-		1: "Player size"
-		2: "Big Size"
-		3: "Player duck"
-	]
 	spawnflags(flags) =
 	[
 		8: "Reserved (don't use)" : 0 : "Reserved for Sven Co-op 'Repairable' flag"
