@@ -256,7 +256,9 @@ public:
 		if( m_pfnUse )
 			( this->*m_pfnUse )( pActivator, pCaller, useType, value );
 	}
-	virtual void Blocked( CBaseEntity *pOther ) { if( m_pfnBlocked ) ( this->*m_pfnBlocked )( pOther ); };
+	virtual void Blocked( CBaseEntity *pOther ) { if( m_pfnBlocked ) ( this->*m_pfnBlocked )( pOther ); }
+	virtual bool ShouldCollide(CBaseEntity* pOther) { return true; }
+	virtual bool ShouldCollideWithCorpses() { return true; }
 
 	string_t m_entTemplate;
 	string_t m_ownerEntTemplate;

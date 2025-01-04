@@ -116,6 +116,12 @@ int ShouldCollide(edict_t *pentTouched, edict_t *pentOther)
 {
 	//if ((pentTouched->v.deadflag == DEAD_DEAD) && FStrEq(STRING(pentOther->v.classname), "func_pushable"))
 	//	return 0;
+	if (!FNullEnt(pentTouched) && !FNullEnt(pentOther))
+	{
+		CBaseEntity* pTouched = CBaseEntity::Instance(pentTouched);
+		CBaseEntity* pOther = CBaseEntity::Instance(pentOther);
+		return pTouched->ShouldCollide(pOther) ? 1 : 0;
+	}
 	return 1;
 }
 

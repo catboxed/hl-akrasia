@@ -143,6 +143,7 @@ public:
 	virtual bool IsAlive( void ) override { return ( pev->deadflag != DEAD_DEAD ); }
 	virtual bool IsFullyAlive( void );
 	virtual bool ShouldFadeOnDeath( void );
+	bool ShouldCollide(CBaseEntity *pOther) override;
 
 	// Basic Monster AI functions
 	virtual float ChangeYaw( int yawSpeed );
@@ -490,6 +491,7 @@ public:
 	virtual const char* DefaultModel() {
 		return nullptr;
 	}
+	bool ShouldCollide(CBaseEntity* pOther) override;
 
 	CDeadMonster* MyDeadMonsterPointer() {return this;}
 	virtual const char* getPos(int pose) const = 0;

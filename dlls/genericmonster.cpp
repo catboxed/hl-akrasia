@@ -245,6 +245,7 @@ public:
 	void Spawn();
 	void KeyValue( KeyValueData *pkvd );
 	int DefaultClassify() { return CLASS_HUMAN_PASSIVE; }
+	bool ShouldCollide(CBaseEntity* pOther) override;
 };
 
 LINK_ENTITY_TO_CLASS( monster_generic_dead, CDeadGenericMonster )
@@ -318,6 +319,11 @@ void CDeadGenericMonster::KeyValue( KeyValueData *pkvd )
 	}
 	else
 		CBaseMonster::KeyValue( pkvd );
+}
+
+bool CDeadGenericMonster::ShouldCollide(CBaseEntity* pOther)
+{
+	return pOther->ShouldCollideWithCorpses();
 }
 
 //=========================================================

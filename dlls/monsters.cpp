@@ -4286,6 +4286,13 @@ bool CBaseMonster::ShouldFadeOnDeath( void )
 	return false;
 }
 
+bool CBaseMonster::ShouldCollide(CBaseEntity *pOther)
+{
+	if (pev->deadflag == DEAD_DEAD && FBitSet(pev->flags, FL_MONSTER))
+		return pOther->ShouldCollideWithCorpses();
+	return true;
+}
+
 const char* CBaseMonster::MyNonDefaultGibModel()
 {
 	if (!FStringNull(m_gibModel))
@@ -4513,6 +4520,11 @@ void CDeadMonster::SpawnHelper(const char* defaultModel, int bloodColor, int hea
 void CDeadMonster::SpawnHelper(int bloodColor, int health)
 {
 	SpawnHelper(DefaultModel(), bloodColor, health);
+}
+
+bool CDeadMonster::ShouldCollide(CBaseEntity* pOther)
+{
+	return pOther->ShouldCollideWithCorpses();
 }
 
 #if FEATURE_SKELETON

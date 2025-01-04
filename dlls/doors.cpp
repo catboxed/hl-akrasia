@@ -38,6 +38,7 @@ public:
 	NODE_LINKENT HandleLinkEnt(int afCapMask, bool nodeQueryStatic);
 	virtual void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual void Blocked( CBaseEntity *pOther );
+	bool ShouldCollide(CBaseEntity *pOther) override;
 
 	virtual int ObjectCaps( void ) 
 	{
@@ -100,6 +101,7 @@ public:
 	string_t m_unlockedSentenceOverride;
 
 	float m_returnSpeed;
+	bool m_ignoreCorpses;
 
 	float SoundAttenuation() const
 	{
@@ -144,6 +146,7 @@ TYPEDESCRIPTION	CBaseDoor::m_SaveData[] =
 	DEFINE_FIELD( CBaseDoor, m_unlockedSentenceOverride, FIELD_STRING ),
 
 	DEFINE_FIELD( CBaseDoor, m_returnSpeed, FIELD_FLOAT ),
+	DEFINE_FIELD( CBaseDoor, m_ignoreCorpses, FIELD_BOOLEAN ),
 };
 
 IMPLEMENT_SAVERESTORE( CBaseDoor, CBaseToggle )
@@ -371,6 +374,11 @@ void CBaseDoor::KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq(pkvd->szKeyName, "return_speed") )
 	{
 		m_returnSpeed = atof(pkvd->szValue);
+		pkvd->fHandled = true;
+	}
+	else if ( FStrEq(pkvd->szKeyName, "ignore_corpses") )
+	{
+		m_ignoreCorpses = atoi(pkvd->szValue) != 0;
 		pkvd->fHandled = true;
 	}
 	else if( FStrEq( pkvd->szKeyName, "soundradius" ) )
@@ -1133,6 +1141,13 @@ void CBaseDoor::Blocked( CBaseEntity *pOther )
 			}
 		}
 	}
+}
+
+bool CBaseDoor::ShouldCollide(CBaseEntity *pOther)
+{
+	if (m_ignoreCorpses && pOther->pev->deadflag == DEAD_DEAD)
+		return false;
+	return true;
 }
 
 /*QUAKED FuncRotDoorSpawn (0 .5 .8) ? START_OPEN REVERSE  

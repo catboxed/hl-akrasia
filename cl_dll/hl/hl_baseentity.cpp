@@ -145,6 +145,7 @@ float CBaseMonster::HeadHitGroupDamageMultiplier() { return 3.0f; }
 void CBaseMonster::TraceAttack( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) { }
 bool CBaseMonster::IsFullyAlive( void ) { return CBaseToggle::IsFullyAlive(); }
 bool CBaseMonster::ShouldFadeOnDeath( void ) { return false; }
+bool CBaseMonster::ShouldCollide(CBaseEntity *pOther) { return true; }
 void CBaseMonster::RadiusDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType ) { }
 void CBaseMonster::RadiusDamage( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType ) { }
 void CBaseMonster::FadeMonster( void ) { }

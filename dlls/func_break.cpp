@@ -955,12 +955,14 @@ public:
 	virtual int TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
 
 	int DamageDecal(int bitsDamageType);
+	bool ShouldCollideWithCorpses() { return !m_ignoreCorpses; }
 
 	static TYPEDESCRIPTION m_SaveData[];
 
 	int m_lastSound;	// no need to save/restore, just keeps the same sound from playing twice in a row
 	float m_maxSpeed;
 	float m_soundTime;
+	bool m_ignoreCorpses;
 
 	static const NamedSoundScript moveSoundScript;
 };
@@ -969,6 +971,7 @@ TYPEDESCRIPTION	CPushable::m_SaveData[] =
 {
 	DEFINE_FIELD( CPushable, m_maxSpeed, FIELD_FLOAT ),
 	DEFINE_FIELD( CPushable, m_soundTime, FIELD_TIME ),
+	DEFINE_FIELD( CPushable, m_ignoreCorpses, FIELD_BOOLEAN ),
 };
 
 IMPLEMENT_SAVERESTORE( CPushable, CBreakable )
@@ -1047,6 +1050,11 @@ void CPushable::KeyValue( KeyValueData *pkvd )
 	else if( FStrEq( pkvd->szKeyName, "buoyancy" ) )
 	{
 		pev->skin = atoi( pkvd->szValue );
+		pkvd->fHandled = true;
+	}
+	else if ( FStrEq(pkvd->szKeyName, "ignore_corpses") )
+	{
+		m_ignoreCorpses = atoi(pkvd->szValue) != 0;
 		pkvd->fHandled = true;
 	}
 	else
