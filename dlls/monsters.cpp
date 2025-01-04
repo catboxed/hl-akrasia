@@ -4417,12 +4417,13 @@ bool CBaseMonster::IsFreeToManipulate()
 
 bool CBaseMonster::HandleDoorBlockage(CBaseEntity *pDoor)
 {
-#if FEATURE_DOOR_BLOCKED_FADE_CORPSES
-	if (pev->deadflag == DEAD_DEAD && pev->movetype == MOVETYPE_TOSS && pev->takedamage == DAMAGE_YES) {
-		SUB_StartFadeOut();
-		return true;
+	if (g_modFeatures.doors_blocked_fade_corpses)
+	{
+		if (pev->deadflag == DEAD_DEAD && pev->movetype == MOVETYPE_TOSS && pev->takedamage == DAMAGE_YES) {
+			SUB_StartFadeOut();
+			return true;
+		}
 	}
-#endif
 	return false;
 }
 

@@ -114,6 +114,7 @@ struct ModFeatures
 
 	bool doors_open_in_move_direction;
 	bool doors_blocked_recheck;
+	bool doors_blocked_fade_corpses;
 	bool door_rotating_starts_open_fix;
 
 	bool env_spark_transit;

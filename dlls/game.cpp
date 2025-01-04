@@ -109,6 +109,7 @@ ModFeatures::ModFeatures()
 
 	doors_open_in_move_direction = false;
 	doors_blocked_recheck = false;
+	doors_blocked_fade_corpses = false;
 	door_rotating_starts_open_fix = false;
 
 	env_spark_transit = false;
@@ -168,6 +169,7 @@ bool ModFeatures::SetValue(const char *key, const char *value)
 		KEY_VALUE_DEF(voltigore_lesser_size),
 		KEY_VALUE_DEF(doors_open_in_move_direction),
 		KEY_VALUE_DEF(doors_blocked_recheck),
+		KEY_VALUE_DEF(doors_blocked_fade_corpses),
 		KEY_VALUE_DEF(door_rotating_starts_open_fix),
 		KEY_VALUE_DEF(env_spark_transit),
 		KEY_VALUE_DEF(skill_opfor),
