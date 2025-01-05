@@ -94,6 +94,7 @@ public:
 
 	CFollowingMonster* MyFollowingMonsterPointer() { return this; }
 	virtual bool InScriptedSentence();
+	virtual bool AllowUseDuringScriptedSentence();
 	Schedule_t* GetFollowingSchedule(bool ignoreEnemy = false);
 	void EXPORT FollowerUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	int DoFollowerUse(CBaseEntity* pCaller, bool saySentence, USE_TYPE useType, bool ignoreScriptedSentence = false);

@@ -62,6 +62,7 @@ TYPEDESCRIPTION	CTalkMonster::m_SaveData[] =
 	DEFINE_FIELD( CTalkMonster, m_flStopLookTime, FIELD_TIME ),
 	DEFINE_FIELD( CTalkMonster, m_flNextFlinch, FIELD_TIME ),
 	DEFINE_FIELD( CTalkMonster, m_painTime, FIELD_TIME ),
+	DEFINE_FIELD( CTalkMonster, m_allowUseScriptedSentence, FIELD_BOOLEAN ),
 };
 
 IMPLEMENT_SAVERESTORE( CTalkMonster, CFollowingMonster )
@@ -732,6 +733,11 @@ bool CTalkMonster::InScriptedSentence()
 {
 	// Don't allow use during a scripted_sentence
 	return m_useTime > gpGlobals->time;
+}
+
+bool CTalkMonster::AllowUseDuringScriptedSentence()
+{
+	return m_allowUseScriptedSentence;
 }
 
 void CTalkMonster::PlayUseSentence()

@@ -191,6 +191,7 @@ public:
 	void			LimitFollowers( CBaseEntity *pPlayer, int maxFollowers );
 	virtual int		TalkFriendCategory() { return TALK_FRIEND_PERSONNEL; }
 	bool	InScriptedSentence();
+	bool AllowUseDuringScriptedSentence() override;
 	virtual void PlayUseSentence();
 	virtual void PlayUnUseSentence();
 	virtual void DeclineFollowing(CBaseEntity* pCaller);
@@ -272,6 +273,8 @@ public:
 	float m_flStopLookTime;
 	float m_flNextFlinch;
 	float m_painTime;
+
+	bool m_allowUseScriptedSentence;
 
 	CUSTOM_SCHEDULES
 };

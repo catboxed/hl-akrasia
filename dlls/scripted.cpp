@@ -1293,6 +1293,7 @@ private:
 	short m_searchPolicy;
 	short m_applySearchRadius;
 	string_t m_searchOrigin;
+	short m_allowUse;
 };
 
 #define SF_SENTENCE_ONCE	0x0001
@@ -1330,6 +1331,7 @@ TYPEDESCRIPTION	CScriptedSentence::m_SaveData[] =
 	DEFINE_FIELD( CScriptedSentence, m_searchPolicy, FIELD_SHORT ),
 	DEFINE_FIELD( CScriptedSentence, m_applySearchRadius, FIELD_SHORT ),
 	DEFINE_FIELD( CScriptedSentence, m_searchOrigin, FIELD_STRING ),
+	DEFINE_FIELD( CScriptedSentence, m_allowUse, FIELD_SHORT ),
 };
 
 IMPLEMENT_SAVERESTORE( CScriptedSentence, CBaseDelay )
@@ -1411,6 +1413,11 @@ void CScriptedSentence::KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq( pkvd->szKeyName, "search_origin" ) )
 	{
 		m_searchOrigin = ALLOC_STRING( pkvd->szValue );
+		pkvd->fHandled = true;
+	}
+	else if ( FStrEq( pkvd->szKeyName, "allow_use" ) )
+	{
+		m_allowUse = (short)atoi( pkvd->szValue );
 		pkvd->fHandled = true;
 	}
 	else
@@ -1649,8 +1656,16 @@ bool CScriptedSentence::StartSentence( CBaseToggle *pTarget )
 		}
 	}
 
-	pTarget->PlayScriptedSentence( STRING( m_iszSentence ), m_flDuration,  m_flVolume, m_flAttenuation, bConcurrent, pListener );
 	CBaseMonster* pMonster = pTarget->MyMonsterPointer();
+	if (pMonster)
+	{
+		CTalkMonster* pTalkMonster = pMonster->MyTalkMonsterPointer();
+		if (pTalkMonster)
+		{
+			pTalkMonster->m_allowUseScriptedSentence = m_allowUse != 0;
+		}
+	}
+	pTarget->PlayScriptedSentence( STRING( m_iszSentence ), m_flDuration,  m_flVolume, m_flAttenuation, bConcurrent, pListener );
 	if (pMonster != 0 && m_followAction)
 	{
 		CFollowingMonster* followingMonster = pMonster->MyFollowingMonsterPointer();

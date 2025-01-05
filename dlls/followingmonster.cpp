@@ -661,6 +661,11 @@ bool CFollowingMonster::InScriptedSentence()
 	return false;
 }
 
+bool CFollowingMonster::AllowUseDuringScriptedSentence()
+{
+	return false;
+}
+
 Schedule_t* CFollowingMonster::GetFollowingSchedule(bool ignoreEnemy)
 {
 	if( (ignoreEnemy || m_hEnemy == 0 || !m_hEnemy->IsFullyAlive()) && IsFollowingPlayer() )
@@ -700,7 +705,11 @@ void CFollowingMonster::FollowerUse( CBaseEntity *pActivator, CBaseEntity *pCall
 		}
 		return;
 	}
-	DoFollowerUse(pCaller, true, USE_TOGGLE);
+	int result = DoFollowerUse(pCaller, true, USE_TOGGLE);
+	if (result == FOLLOWING_NOTREADY && AllowUseDuringScriptedSentence())
+	{
+		DoFollowerUse(pCaller, false, USE_TOGGLE, true);
+	}
 }
 
 bool CFollowingMonster::ShouldDeclineFollowing()

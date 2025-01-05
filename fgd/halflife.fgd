@@ -8045,6 +8045,11 @@
 		1 : "Always"
 	]
 	search_origin(string) : "Speaker Search Origin (blank = here) [LP]" : : "Search the speaker relative to this position instead of the position of scripted_sentence"
+	allow_use(choices) : "Allow use during speech" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
 ]
 
 @PointClass base(ScriptedSequence) = scripted_sequence : "Scripted Sequence"
