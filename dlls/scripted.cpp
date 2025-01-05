@@ -1583,13 +1583,14 @@ bool CScriptedSentence::StartSentence( CBaseToggle *pTarget )
 	if( !FStringNull( m_iszListener ) )
 	{
 		float radius = ListenerSearchRadius();
+		const bool listenerRequired = FBitSet(pev->spawnflags, SF_SENTENCE_REQUIRE_LISTENER);
 
-		if( FStrEq( STRING( m_iszListener ), "player" ) )
-			radius = 4096;	// Always find the player
+		if (!listenerRequired && FStrEq( STRING( m_iszListener ), "player" ))
+			radius = 4096;	// Always find the player unless listener is explicitly required
 
 		pListener = UTIL_FindEntityGeneric( STRING( m_iszListener ), pTarget->pev->origin, radius );
 
-		if (!pListener && FBitSet(pev->spawnflags, SF_SENTENCE_REQUIRE_LISTENER))
+		if (!pListener && listenerRequired)
 		{
 			return false;
 		}
