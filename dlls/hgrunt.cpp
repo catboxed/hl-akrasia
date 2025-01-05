@@ -264,6 +264,8 @@ void CHGrunt::DropMyItems(bool isGibbed)
 		Vector vecGunAngles;
 		GetAttachment( 0, vecGunPos, vecGunAngles );
 
+		FixupDropItemPosition(vecGunPos);
+
 		if (!isGibbed) {
 			SetBodygroup( GUN_GROUP, GUN_NONE );
 		}

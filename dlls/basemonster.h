@@ -377,6 +377,7 @@ public:
 
 	Schedule_t* StartPatrol( CBaseEntity* path );
 	CBaseEntity* DropItem ( const char *pszItemName, const Vector &vecPos, const Vector &vecAng );// drop an item.
+	void FixupDropItemPosition(Vector& pos);
 
 	bool CalcRatio(CBaseEntity* pLocus, float* outResult)
 	{

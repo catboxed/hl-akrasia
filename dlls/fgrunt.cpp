@@ -1229,6 +1229,8 @@ void CHFGrunt::DropMyItems(bool isGibbed)
 		Vector vecGunAngles;
 		GetAttachment( 0, vecGunPos, vecGunAngles );
 
+		FixupDropItemPosition(vecGunPos);
+
 		if (!isGibbed) {
 			SetBodygroup( FG_GUN_GROUP, FG_GUN_NONE );
 		}
@@ -3208,6 +3210,7 @@ void CTorch::DropMyItems(bool isGibbed)
 		Vector	vecGunPos;
 		Vector	vecGunAngles;
 		GetAttachment( 0, vecGunPos, vecGunAngles );
+		FixupDropItemPosition(vecGunPos);
 		DropMyItem(g_modFeatures.DesertEagleDropName(), vecGunPos, vecGunAngles, isGibbed);
 	}
 }
@@ -3924,6 +3927,7 @@ void CMedic::DropMyItems(bool isGibbed)
 		Vector	vecGunPos;
 		Vector	vecGunAngles;
 		GetAttachment( 0, vecGunPos, vecGunAngles );
+		FixupDropItemPosition(vecGunPos);
 		if (FBitSet(pev->weapons, MEDIC_EAGLE))
 			DropMyItem(g_modFeatures.DesertEagleDropName(), vecGunPos, vecGunAngles, isGibbed);
 		else if (FBitSet(pev->weapons, MEDIC_HANDGUN)) {

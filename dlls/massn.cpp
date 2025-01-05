@@ -186,6 +186,8 @@ void CMassn::DropMyItems(bool isGibbed)
 		Vector vecGunAngles;
 		GetAttachment( 0, vecGunPos, vecGunAngles );
 
+		FixupDropItemPosition(vecGunPos);
+
 		if (!isGibbed) {
 			SetBodygroup( MASSN_GUN_GROUP, MASSN_GUN_NONE );
 		}

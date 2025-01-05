@@ -4272,6 +4272,14 @@ CBaseEntity *CBaseMonster::DropItem( const char *pszItemName, const Vector &vecP
 	}
 }
 
+void CBaseMonster::FixupDropItemPosition(Vector &pos)
+{
+	TraceResult tr;
+	UTIL_TraceHull(pos, pos + Vector(0,0,1), ignore_monsters, head_hull, edict(), &tr);
+	if (tr.fStartSolid || tr.fAllSolid)
+		pos = Center();
+}
+
 bool CBaseMonster::IsFullyAlive()
 {
 	return !HasMemory(bits_MEMORY_KILLED) && CBaseToggle::IsFullyAlive();
