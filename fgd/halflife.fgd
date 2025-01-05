@@ -8044,6 +8044,7 @@
 		0 : "Only to Class Name"
 		1 : "Always"
 	]
+	search_origin(string) : "Speaker Search Origin (blank = here) [LP]" : : "Search the speaker relative to this position instead of the position of scripted_sentence"
 ]
 
 @PointClass base(ScriptedSequence) = scripted_sequence : "Scripted Sequence"

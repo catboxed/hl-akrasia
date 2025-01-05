@@ -38,6 +38,7 @@
 #include "talkmonster.h"
 #include "player.h"
 #include "gamerules.h"
+#include "locus.h"
 
 enum
 {
@@ -1264,7 +1265,7 @@ public:
 
 	CBaseToggle *FindEntity( void );
 	bool AcceptableSpeaker( CBaseToggle *pTarget );
-	bool SpeakerIsInRange(CBaseToggle *pTarget, float flRadius);
+	bool SpeakerIsInRange(CBaseToggle *pTarget, float flRadius, const Vector& searchOrigin);
 	bool StartSentence( CBaseToggle *pTarget );
 
 	float SpeakerSearchRadius() const {
@@ -1291,6 +1292,7 @@ private:
 
 	short m_searchPolicy;
 	short m_applySearchRadius;
+	string_t m_searchOrigin;
 };
 
 #define SF_SENTENCE_ONCE	0x0001
@@ -1327,6 +1329,7 @@ TYPEDESCRIPTION	CScriptedSentence::m_SaveData[] =
 	DEFINE_FIELD( CScriptedSentence, m_flListenerRadius, FIELD_FLOAT ),
 	DEFINE_FIELD( CScriptedSentence, m_searchPolicy, FIELD_SHORT ),
 	DEFINE_FIELD( CScriptedSentence, m_applySearchRadius, FIELD_SHORT ),
+	DEFINE_FIELD( CScriptedSentence, m_searchOrigin, FIELD_STRING ),
 };
 
 IMPLEMENT_SAVERESTORE( CScriptedSentence, CBaseDelay )
@@ -1403,6 +1406,11 @@ void CScriptedSentence::KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq( pkvd->szKeyName, "m_applySearchRadius" ) )
 	{
 		m_applySearchRadius = (short)atoi( pkvd->szValue );
+		pkvd->fHandled = true;
+	}
+	else if ( FStrEq( pkvd->szKeyName, "search_origin" ) )
+	{
+		m_searchOrigin = ALLOC_STRING( pkvd->szValue );
 		pkvd->fHandled = true;
 	}
 	else
@@ -1522,17 +1530,22 @@ bool CScriptedSentence::AcceptableSpeaker( CBaseToggle *pTarget )
 	return false;
 }
 
-bool CScriptedSentence::SpeakerIsInRange(CBaseToggle *pTarget, float flRadius)
+bool CScriptedSentence::SpeakerIsInRange(CBaseToggle *pTarget, float flRadius, const Vector& searchOrigin)
 {
 	if (!pTarget)
 		return false;
-	return (pev->origin - pTarget->pev->origin).Length() <= flRadius;
+	return (searchOrigin - pTarget->pev->origin).Length() <= flRadius;
 }
 
 CBaseToggle *CScriptedSentence::FindEntity( void )
 {
-	edict_t *pentTarget;
-	CBaseToggle *pTarget;
+	CBaseToggle *pTarget = NULL;
+	Vector searchOrigin = pev->origin;
+	if (!FStringNull(m_searchOrigin))
+	{
+		if (!TryCalcLocus_Position(this, m_hActivator, STRING(m_searchOrigin), searchOrigin))
+			return NULL;
+	}
 
 	if (UTIL_TargetnameIsActivator(m_iszEntity))
 	{
@@ -1540,14 +1553,14 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 		{
 			if( AcceptableSpeaker( pTarget ) )
 			{
-				if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius()))
+				if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
 					return pTarget;
 			}
 		}
 		return NULL;
 	}
 
-	pentTarget = FIND_ENTITY_BY_TARGETNAME( NULL, STRING( m_iszEntity ) );
+	edict_t *pentTarget = FIND_ENTITY_BY_TARGETNAME( NULL, STRING( m_iszEntity ) );
 	pTarget = NULL;
 
 	if ( m_searchPolicy != SCRIPT_SEARCH_POLICY_CLASSNAME_ONLY )
@@ -1559,7 +1572,7 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 			{
 				if( AcceptableSpeaker( pTarget ) )
 				{
-					if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius()))
+					if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
 						return pTarget;
 				}
 				//ALERT( at_console, "%s (%s), not acceptable\n", STRING( pMonster->pev->classname ), STRING( pMonster->pev->targetname ) );
@@ -1571,7 +1584,7 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 	if ( m_searchPolicy != SCRIPT_SEARCH_POLICY_TARGETNAME_ONLY )
 	{
 		CBaseEntity *pEntity = NULL;
-		while( ( pEntity = UTIL_FindEntityInSphere( pEntity, pev->origin, SpeakerSearchRadius() ) ) != NULL )
+		while( ( pEntity = UTIL_FindEntityInSphere( pEntity, searchOrigin, SpeakerSearchRadius() ) ) != NULL )
 		{
 			if( FClassnameIs( pEntity->pev, STRING( m_iszEntity ) ) )
 			{
