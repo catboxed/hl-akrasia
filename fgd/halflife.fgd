@@ -8039,6 +8039,11 @@
 		1 : "Targetname only"
 		2 : "Classname only"
 	]
+	m_applySearchRadius(choices) : "Apply speaker search radius" =
+	[
+		0 : "Only to Class Name"
+		1 : "Always"
+	]
 ]
 
 @PointClass base(ScriptedSequence) = scripted_sequence : "Scripted Sequence"

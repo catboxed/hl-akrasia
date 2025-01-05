@@ -1264,6 +1264,7 @@ public:
 
 	CBaseToggle *FindEntity( void );
 	bool AcceptableSpeaker( CBaseToggle *pTarget );
+	bool SpeakerIsInRange(CBaseToggle *pTarget, float flRadius);
 	bool StartSentence( CBaseToggle *pTarget );
 
 	float SpeakerSearchRadius() const {
@@ -1289,6 +1290,7 @@ private:
 	float m_flListenerRadius;
 
 	short m_searchPolicy;
+	short m_applySearchRadius;
 };
 
 #define SF_SENTENCE_ONCE	0x0001
@@ -1324,6 +1326,7 @@ TYPEDESCRIPTION	CScriptedSentence::m_SaveData[] =
 	DEFINE_FIELD( CScriptedSentence, m_targetActivator, FIELD_SHORT ),
 	DEFINE_FIELD( CScriptedSentence, m_flListenerRadius, FIELD_FLOAT ),
 	DEFINE_FIELD( CScriptedSentence, m_searchPolicy, FIELD_SHORT ),
+	DEFINE_FIELD( CScriptedSentence, m_applySearchRadius, FIELD_SHORT ),
 };
 
 IMPLEMENT_SAVERESTORE( CScriptedSentence, CBaseDelay )
@@ -1395,6 +1398,11 @@ void CScriptedSentence::KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq( pkvd->szKeyName, "m_searchPolicy" ) )
 	{
 		m_searchPolicy = (short)atoi( pkvd->szValue );
+		pkvd->fHandled = true;
+	}
+	else if ( FStrEq( pkvd->szKeyName, "m_applySearchRadius" ) )
+	{
+		m_applySearchRadius = (short)atoi( pkvd->szValue );
 		pkvd->fHandled = true;
 	}
 	else
@@ -1514,6 +1522,13 @@ bool CScriptedSentence::AcceptableSpeaker( CBaseToggle *pTarget )
 	return false;
 }
 
+bool CScriptedSentence::SpeakerIsInRange(CBaseToggle *pTarget, float flRadius)
+{
+	if (!pTarget)
+		return false;
+	return (pev->origin - pTarget->pev->origin).Length() <= flRadius;
+}
+
 CBaseToggle *CScriptedSentence::FindEntity( void )
 {
 	edict_t *pentTarget;
@@ -1524,7 +1539,10 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 		if (m_hActivator != 0 && FBitSet(m_hActivator->pev->flags, FL_MONSTER) && (pTarget = m_hActivator->MyTogglePointer()) != 0 )
 		{
 			if( AcceptableSpeaker( pTarget ) )
-				return pTarget;
+			{
+				if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius()))
+					return pTarget;
+			}
 		}
 		return NULL;
 	}
@@ -1540,7 +1558,10 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 			if( pTarget != NULL )
 			{
 				if( AcceptableSpeaker( pTarget ) )
-					return pTarget;
+				{
+					if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius()))
+						return pTarget;
+				}
 				//ALERT( at_console, "%s (%s), not acceptable\n", STRING( pMonster->pev->classname ), STRING( pMonster->pev->targetname ) );
 			}
 			pentTarget = FIND_ENTITY_BY_TARGETNAME( pentTarget, STRING( m_iszEntity ) );
