@@ -8000,7 +8000,7 @@
 	duration(string) : "Sentence Time" : "3"
 	radius(integer) : "Search Radius" : 512
 	refire(string) : "Delay Before Refire" : "3"
-	listener(string) : "Listener Type"
+	listener(string) : "Listener Type [LE]"
 	listener_radius(integer) : "Listener Search Radius" : : "If not present, it uses Search Radius"
 	volume(string) : "Volume 0-10" : "10"
 	attenuation(Choices) : "Sound Radius" : 0 =

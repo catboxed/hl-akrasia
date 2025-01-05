@@ -1265,7 +1265,7 @@ public:
 
 	CBaseToggle *FindEntity( void );
 	bool AcceptableSpeaker( CBaseToggle *pTarget );
-	bool SpeakerIsInRange(CBaseToggle *pTarget, float flRadius, const Vector& searchOrigin);
+	bool InterlocutorIsInRange(CBaseEntity* pTarget, float flRadius, const Vector& searchOrigin);
 	bool StartSentence( CBaseToggle *pTarget );
 
 	float SpeakerSearchRadius() const {
@@ -1530,7 +1530,7 @@ bool CScriptedSentence::AcceptableSpeaker( CBaseToggle *pTarget )
 	return false;
 }
 
-bool CScriptedSentence::SpeakerIsInRange(CBaseToggle *pTarget, float flRadius, const Vector& searchOrigin)
+bool CScriptedSentence::InterlocutorIsInRange(CBaseEntity *pTarget, float flRadius, const Vector& searchOrigin)
 {
 	if (!pTarget)
 		return false;
@@ -1553,7 +1553,7 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 		{
 			if( AcceptableSpeaker( pTarget ) )
 			{
-				if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
+				if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || InterlocutorIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
 					return pTarget;
 			}
 		}
@@ -1572,7 +1572,7 @@ CBaseToggle *CScriptedSentence::FindEntity( void )
 			{
 				if( AcceptableSpeaker( pTarget ) )
 				{
-					if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || SpeakerIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
+					if (m_applySearchRadius != SCRIPT_APPLY_SEARCH_RADIUS_ALWAYS || InterlocutorIsInRange(pTarget, SpeakerSearchRadius(), searchOrigin))
 						return pTarget;
 				}
 				//ALERT( at_console, "%s (%s), not acceptable\n", STRING( pMonster->pev->classname ), STRING( pMonster->pev->targetname ) );
@@ -1619,10 +1619,29 @@ bool CScriptedSentence::StartSentence( CBaseToggle *pTarget )
 		float radius = ListenerSearchRadius();
 		const bool listenerRequired = FBitSet(pev->spawnflags, SF_SENTENCE_REQUIRE_LISTENER);
 
-		if (!listenerRequired && FStrEq( STRING( m_iszListener ), "player" ))
-			radius = 4096;	// Always find the player unless listener is explicitly required
+		if (UTIL_TargetnameIsActivator(m_iszListener))
+		{
+			CBaseEntity* pActivator = m_hActivator;
+			if (InterlocutorIsInRange(pActivator, radius, pTarget->pev->origin))
+			{
+				pListener = pActivator;
+			}
+		}
+		else if (UTIL_IsPlayerReference(STRING(m_iszListener)))
+		{
+			CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(m_hActivator);
+			if (InterlocutorIsInRange(pPlayer, radius, pTarget->pev->origin))
+			{
+				pListener = pPlayer;
+			}
+		}
+		else
+		{
+			if (!listenerRequired && FStrEq( STRING( m_iszListener ), "player" ))
+				radius = 4096;	// Always find the player unless listener is explicitly required
 
-		pListener = UTIL_FindEntityGeneric( STRING( m_iszListener ), pTarget->pev->origin, radius );
+			pListener = UTIL_FindEntityGeneric( STRING( m_iszListener ), pTarget->pev->origin, radius );
+		}
 
 		if (!pListener && listenerRequired)
 		{
