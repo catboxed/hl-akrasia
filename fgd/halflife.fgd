@@ -7146,7 +7146,7 @@
 		2 : "Water"
 	]
 ]
-@PointClass base(Targetname, RenderFields, Angles, Sequence) studio("models/v_tripmine.mdl") flags(Angle) color(0 200 200) body(3) sequence(7) = monster_tripmine : "Active Tripmine"
+@PointClass base(Targetname, RenderFields, Angles, Sequence, EntityTemplate) studio("models/v_tripmine.mdl") flags(Angle) color(0 200 200) body(3) sequence(7) = monster_tripmine : "Active Tripmine"
 [
 	spawnflags(Flags) =
 	[
