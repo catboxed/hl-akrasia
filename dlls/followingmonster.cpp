@@ -779,10 +779,7 @@ int CFollowingMonster::DoFollowerUse(CBaseEntity *pCaller, bool saySentence, USE
 
 CBaseEntity* CFollowingMonster::PlayerToFace()
 {
-	CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(FollowedPlayer());
-	if (pPlayer && pPlayer->IsAlive())
-		return pPlayer;
-	return 0;
+	return g_pGameRules->EffectiveAlivePlayer(FollowedPlayer());
 }
 
 void CFollowingMonster::StopScript()

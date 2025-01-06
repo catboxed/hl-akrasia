@@ -4259,7 +4259,7 @@ void CTriggerPlayerFreeze::KeyValue( KeyValueData *pkvd )
 
 void CTriggerPlayerFreeze::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-	CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+	CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 
 	if (pPlayer)
 	{

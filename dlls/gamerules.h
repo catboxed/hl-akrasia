@@ -172,6 +172,7 @@ public:
 
 	virtual void BeforeChangeLevel(const char* nextMap) {}
 	virtual CBasePlayer* EffectivePlayer( CBaseEntity* pActivator );
+	CBasePlayer* EffectiveAlivePlayer( CBaseEntity* pActivator );
 
 	bool EquipPlayerFromMapConfig(CBasePlayer* pPlayer, const MapConfig& mapConfig);
 

@@ -6564,7 +6564,7 @@ LINK_ENTITY_TO_CLASS( player_weaponstrip, CStripWeapons )
 
 void CStripWeapons::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-	CBasePlayer *pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+	CBasePlayer *pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 
 	if( pPlayer ) {
 		int stripFlags = pev->spawnflags;
@@ -6947,7 +6947,7 @@ public:
 	}
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 	{
-		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+		CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 		if (!pPlayer)
 			return;
 
@@ -7110,7 +7110,7 @@ public:
 	}
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 	{
-		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+		CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 		if (pPlayer && !FStringNull(pev->netname))
 		{
 			pPlayer->SelectItem(STRING(pev->netname));
@@ -7134,7 +7134,7 @@ class CPlayerCapabilities : public CPointEntity
 public:
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
-		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+		CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 		if (!pPlayer)
 			return;
 		ConfigurePlayerCapability(pPlayer, PLAYER_SUPPRESS_ATTACK, m_attackCapability, useType);
@@ -7449,8 +7449,8 @@ public:
 		if (!ShouldToggle(useType, m_stashed))
 			return;
 
-		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
-		if (!pPlayer || !pPlayer->IsAlive())
+		CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
+		if (!pPlayer)
 			return;
 
 		if (m_stashed)

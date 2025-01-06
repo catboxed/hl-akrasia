@@ -963,7 +963,7 @@ public:
 	void KeyValue( KeyValueData *pkvd );
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
-		EquipPlayer(g_pGameRules->EffectivePlayer(pActivator));
+		EquipPlayer(g_pGameRules->EffectiveAlivePlayer(pActivator));
 	}
 	void Touch( CBaseEntity *pOther )
 	{

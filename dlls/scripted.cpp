@@ -1636,7 +1636,7 @@ bool CScriptedSentence::StartSentence( CBaseToggle *pTarget )
 		}
 		else if (UTIL_IsPlayerReference(STRING(m_iszListener)))
 		{
-			CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(m_hActivator);
+			CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(m_hActivator);
 			if (InterlocutorIsInRange(pPlayer, radius, pTarget->pev->origin))
 			{
 				pListener = pPlayer;
@@ -2035,7 +2035,7 @@ bool CScriptedFollowing::MakeFollowing(CBasePlayer* pPlayer, USE_TYPE useType)
 void CScriptedFollowing::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
 	if (pev->netname) {
-		CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
+		CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(pActivator);
 		if (!pPlayer)
 			return;
 
@@ -2055,7 +2055,7 @@ void CScriptedFollowing::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 
 void CScriptedFollowing::FindThink()
 {
-	CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(m_hActivator);
+	CBasePlayer* pPlayer = g_pGameRules->EffectiveAlivePlayer(m_hActivator);
 	if (!pPlayer)
 	{
 		SetThink(NULL);

@@ -609,6 +609,14 @@ CBasePlayer *CGameRules::EffectivePlayer(CBaseEntity *pActivator)
 	return NULL;
 }
 
+CBasePlayer *CGameRules::EffectiveAlivePlayer(CBaseEntity *pActivator)
+{
+	CBasePlayer* pPlayer = EffectivePlayer(pActivator);
+	if (pPlayer && pPlayer->IsAlive())
+		return pPlayer;
+	return NULL;
+}
+
 bool CGameRules::EquipPlayerFromMapConfig(CBasePlayer *pPlayer, const MapConfig &mapConfig)
 {
 	extern bool gEvilImpulse101;
