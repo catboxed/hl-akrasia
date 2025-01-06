@@ -23,6 +23,7 @@
 #include "effects.h"
 #include "saverestore.h"
 #include "mod_features.h"
+#include "visuals_utils.h"
 
 #if FEATURE_ROPE
 #include "ropes.h"
@@ -1434,6 +1435,8 @@ public:
 	*/
 	void DoLightning();
 
+	static NamedVisual lightningVisual;
+
 private:
 	bool m_bIsActive;
 
@@ -1447,8 +1450,6 @@ private:
 
 	int m_uiNumUninsulatedSegments;
 	int m_uiUninsulatedSegments[ MAX_SEGMENTS ];
-
-	int m_iLightningSprite;
 
 	float m_flLastSparkTime;
 };
@@ -1465,6 +1466,14 @@ CElectrifiedWire::CElectrifiedWire()
 	m_uiNumUninsulatedSegments = 0;
 }
 
+LINK_ENTITY_TO_CLASS( env_electrified_wire, CElectrifiedWire )
+
+NamedVisual CElectrifiedWire::lightningVisual = BuildVisual("Wire.Lightning")
+		.Model("sprites/lgtning.spr")
+		.Life(0.1f)
+		.BeamParams(10, 80, 255)
+		.RenderColor(255, 255, 255)
+		.Alpha(255);
 
 TYPEDESCRIPTION CElectrifiedWire::m_SaveData[] =
 {
@@ -1481,14 +1490,10 @@ TYPEDESCRIPTION CElectrifiedWire::m_SaveData[] =
 	DEFINE_FIELD( CElectrifiedWire, m_uiNumUninsulatedSegments, FIELD_INTEGER ),
 	DEFINE_ARRAY( CElectrifiedWire, m_uiUninsulatedSegments, FIELD_INTEGER, MAX_SEGMENTS ),
 
-	//DEFINE_FIELD( m_iLightningSprite, FIELD_INTEGER ), //Not restored, reset in Precache. - Solokiller
-
 	DEFINE_FIELD( CElectrifiedWire, m_flLastSparkTime, FIELD_TIME ),
 };
 
-LINK_ENTITY_TO_CLASS( env_electrified_wire, CElectrifiedWire );
-IMPLEMENT_SAVERESTORE( CElectrifiedWire, CRope );
-
+IMPLEMENT_SAVERESTORE( CElectrifiedWire, CRope )
 
 void CElectrifiedWire::KeyValue( KeyValueData* pkvd )
 {
@@ -1535,8 +1540,7 @@ void CElectrifiedWire::KeyValue( KeyValueData* pkvd )
 void CElectrifiedWire::Precache()
 {
 	CRope::Precache();
-
-	m_iLightningSprite = PRECACHE_MODEL( "sprites/lgtning.spr" );
+	RegisterVisual(lightningVisual);
 }
 
 void CElectrifiedWire::Spawn()
@@ -1715,21 +1719,15 @@ void CElectrifiedWire::DoLightning()
 		pSegment2 = GetSegments()[ uiSegment2 ];
 	}
 
-	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
-		WRITE_BYTE( TE_BEAMENTS );
-		WRITE_SHORT( pSegment1->entindex() );
-		WRITE_SHORT( pSegment2->entindex() );
-		WRITE_SHORT( m_iLightningSprite );
-		WRITE_BYTE( 0 );
-		WRITE_BYTE( 0 );
-		WRITE_BYTE( 1 );
-		WRITE_BYTE( 10 );
-		WRITE_BYTE( 80 );
-		WRITE_BYTE( 255 );
-		WRITE_BYTE( 255 );
-		WRITE_BYTE( 255 );
-		WRITE_BYTE( 255 );
-		WRITE_BYTE( 255 );
-	MESSAGE_END();
+	const Visual* visual = GetVisual(lightningVisual);
+	if (visual)
+	{
+		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+			WRITE_BYTE( TE_BEAMENTS );
+			WRITE_SHORT( pSegment1->entindex() );
+			WRITE_SHORT( pSegment2->entindex() );
+			WriteBeamVisual(visual);
+		MESSAGE_END();
+	}
 }
 #endif
