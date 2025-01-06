@@ -212,29 +212,38 @@ public:
 	void HandleAnimEvent( MonsterEvent_t *pEvent );
 	void LayHeadcrab( void );
 
-	int GetNodeSequence( void )
+	CInfoBM* GetTargetInfoBM()
 	{
-		CBaseEntity *pTarget = m_hTargetEnt;
+		if (m_hTargetEnt != 0 && FClassnameIs(m_hTargetEnt->pev, "info_bigmomma"))
+		{
+			return m_hTargetEnt.Entity<CInfoBM>();
+		}
+		return nullptr;
+	}
+
+	string_t GetNodeSequence( void )
+	{
+		CInfoBM *pTarget = GetTargetInfoBM();
 		if( pTarget )
 		{
 			return pTarget->pev->netname;	// netname holds node sequence
 		}
-		return 0;
+		return iStringNull;
 	}
 
-	int GetNodePresequence( void )
+	string_t GetNodePresequence( void )
 	{
-		CInfoBM *pTarget = m_hTargetEnt.Entity<CInfoBM>();
+		CInfoBM *pTarget = GetTargetInfoBM();
 		if( pTarget )
 		{
 			return pTarget->m_preSequence;
 		}
-		return 0;
+		return iStringNull;
 	}
 
 	float GetNodeDelay( void )
 	{
-		CBaseEntity *pTarget = m_hTargetEnt;
+		CInfoBM *pTarget = GetTargetInfoBM();
 		if( pTarget )
 		{
 			return pTarget->pev->speed;	// Speed holds node delay
@@ -244,7 +253,7 @@ public:
 
 	float GetNodeRange( void )
 	{
-		CBaseEntity *pTarget = m_hTargetEnt;
+		CInfoBM *pTarget = GetTargetInfoBM();
 		if( pTarget )
 		{
 			return pTarget->pev->scale;	// Scale holds node delay
@@ -310,6 +319,8 @@ public:
 	virtual int Save( CSave &save );
 	virtual int Restore( CRestore &restore );
 	static TYPEDESCRIPTION m_SaveData[];
+
+	void ReportAIState(ALERT_TYPE level);
 
 	virtual int DefaultSizeForGrapple() { return GRAPPLE_LARGE; }
 	Vector DefaultMinHullSize() { return Vector( -32.0f, -32.0f, 0.0f ); }
@@ -802,7 +813,7 @@ void CBigMomma::NodeReach( void )
 	if( !pTarget )
 		return;
 
-	if( pTarget->pev->health )
+	if( pTarget->pev->health > 0.0f )
 		pev->max_health = pev->health = pTarget->pev->health * gSkillData.bigmommaHealthFactor;
 
 	if( !HasMemory( bits_MEMORY_FIRED_NODE ) )
@@ -813,7 +824,15 @@ void CBigMomma::NodeReach( void )
 	Forget( bits_MEMORY_FIRED_NODE );
 
 	pev->netname = pTarget->pev->target;
-	if( pTarget->pev->health == 0 )
+
+	if (g_modFeatures.bigmomma_lastnode_fix && FStringNull(pev->netname))
+	{
+		ALERT( at_aiconsole, "BM: Finished the path!!\n" );
+		Remember( bits_MEMORY_PATH_FINISHED );
+		return;
+	}
+
+	if( pTarget->pev->health <= 0.0f )
 		Remember( bits_MEMORY_ADVANCE_NODE );	// Move on if no health at this node
 }
 
@@ -943,7 +962,10 @@ Schedule_t *CBigMomma::GetScheduleOfType( int Type )
 
 bool CBigMomma::ShouldGoToNode( void )
 {
-	if( HasMemory( bits_MEMORY_ADVANCE_NODE ) )
+	bool shouldAdvance = HasMemory( bits_MEMORY_ADVANCE_NODE );
+	if (g_modFeatures.bigmomma_lastnode_fix)
+		shouldAdvance = shouldAdvance && !FStringNull(pev->netname);
+	if( shouldAdvance )
 	{
 		if( m_nodeTime < gpGlobals->time )
 			return true;
@@ -967,15 +989,15 @@ void CBigMomma::StartTask( Task_t *pTask )
 	{
 	case TASK_FIND_NODE:
 		{
-			CBaseEntity *pTarget = m_hTargetEnt;
+			CBaseEntity *pTarget = GetTargetInfoBM();
 			if( !HasMemory( bits_MEMORY_ADVANCE_NODE ) )
 			{
 				if( pTarget )
-					pev->netname = m_hTargetEnt->pev->target;
+					pev->netname = pTarget->pev->target;
 			}
 			NodeStart( pev->netname );
 			TaskComplete();
-			ALERT( at_aiconsole, "BM: Found node %s\n", STRING( pev->netname ) );
+			ALERT( at_aiconsole, "BM: Found node '%s'\n", STRING( pev->netname ) );
 		}
 		break;
 	case TASK_NODE_DELAY:
@@ -984,20 +1006,19 @@ void CBigMomma::StartTask( Task_t *pTask )
 		ALERT( at_aiconsole, "BM: FAIL! Delay %.2f\n", (double)pTask->flData );
 		break;
 	case TASK_PROCESS_NODE:
-		ALERT( at_aiconsole, "BM: Reached node %s\n", STRING( pev->netname ) );
+		ALERT( at_aiconsole, "BM: Reached node '%s'\n", STRING( pev->netname ) );
 		NodeReach();
 		TaskComplete();
 		break;
 	case TASK_PLAY_NODE_PRESEQUENCE:
 	case TASK_PLAY_NODE_SEQUENCE:
 		{
-			int sequence;
+			string_t sequence;
 			if( pTask->iTask == TASK_PLAY_NODE_SEQUENCE )
 				sequence = GetNodeSequence();
 			else
 				sequence = GetNodePresequence();
 
-			ALERT( at_aiconsole, "BM: Playing node sequence %s\n", STRING( sequence ) );
 			if( sequence )
 			{
 				sequence = LookupSequence( STRING( sequence ) );
@@ -1006,8 +1027,12 @@ void CBigMomma::StartTask( Task_t *pTask )
 					pev->sequence = sequence;
 					pev->frame = 0;
 					ResetSequenceInfo();
-					ALERT( at_aiconsole, "BM: Sequence %s\n", STRING( GetNodeSequence() ) );
+					ALERT( at_aiconsole, "BM: Playing node %s '%s'\n", pTask->iTask == TASK_PLAY_NODE_PRESEQUENCE ? "presequence" : "sequence", STRING( sequence ) );
 					return;
+				}
+				else
+				{
+					ALERT( at_aiconsole, "BM: Couldn't play node sequence '%s' - the sequence is missing from the model\n", STRING( sequence ) );
 				}
 			}
 			TaskComplete();
@@ -1038,9 +1063,9 @@ void CBigMomma::StartTask( Task_t *pTask )
 
 	case TASK_MOVE_TO_NODE_RANGE:
 		{
-			CBaseEntity *pTarget = m_hTargetEnt;
+			CInfoBM *pTarget = GetTargetInfoBM();
 			if( !pTarget )
-				TaskFail("no target ent");
+				TaskFail("no target bigmomma node");
 			else
 			{
 				if( ( pTarget->pev->origin - pev->origin ).Length() < GetNodeRange() )
@@ -1054,12 +1079,12 @@ void CBigMomma::StartTask( Task_t *pTask )
 					m_vecMoveGoal = pTarget->pev->origin;
 					if( !MoveToTarget( act, 2 ) )
 					{
-						TaskFail("failed to reach target ent");
+						TaskFail("failed to reach target bigmomma node");
 					}
 				}
 			}
 		}
-		ALERT( at_aiconsole, "BM: Moving to node %s\n", STRING( pev->netname ) );
+		ALERT( at_aiconsole, "BM: Moving to node '%s'\n", STRING( pev->netname ) );
 		break;
 	case TASK_MELEE_ATTACK1:
 		// Play an attack sound here
@@ -1121,6 +1146,21 @@ void CBigMomma::RunTask( Task_t *pTask )
 		CBaseMonster::RunTask( pTask );
 		break;
 	}
+}
+
+void CBigMomma::ReportAIState(ALERT_TYPE level)
+{
+	CBaseMonster::ReportAIState(level);
+	if (HasMemory(bits_MEMORY_PATH_FINISHED))
+		ALERT(level, "Path finished. ");
+	if (!FStringNull(pev->netname))
+		ALERT(level, "Target node: %s. ", STRING(pev->netname));
+	if (HasMemory(bits_MEMORY_ADVANCE_NODE))
+		ALERT(level, "Advance node. ");
+	if (HasMemory(bits_MEMORY_COMPLETED_NODE))
+		ALERT(level, "Completed node. ");
+	if (HasMemory(bits_MEMORY_FIRED_NODE))
+		ALERT(level, "Fired node. ");
 }
 
 Vector VecCheckSplatToss( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, float maxHeight )
