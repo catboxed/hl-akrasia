@@ -38,7 +38,6 @@
 class CInfoBM : public CPointEntity
 {
 public:
-	void Spawn( void );
 	void KeyValue( KeyValueData* pkvd );
 
 	// name in pev->targetname
@@ -64,10 +63,6 @@ TYPEDESCRIPTION	CInfoBM::m_SaveData[] =
 };
 
 IMPLEMENT_SAVERESTORE( CInfoBM, CPointEntity )
-
-void CInfoBM::Spawn( void )
-{
-}
 
 void CInfoBM::KeyValue( KeyValueData* pkvd )
 {

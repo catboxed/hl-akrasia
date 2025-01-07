@@ -34,6 +34,7 @@ extern DLL_GLOBAL int g_iSkillLevel;
 // Landmark class
 void CPointEntity::Spawn( void )
 {
+	Precache();
 	pev->solid = SOLID_NOT;
 	//UTIL_SetSize( pev, g_vecZero, g_vecZero );
 }
