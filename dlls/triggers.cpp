@@ -6788,10 +6788,6 @@ void CTriggerSkillTest::KeyValue(KeyValueData *pkvd)
 
 void CTriggerSkillTest::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	CBasePlayer* pPlayer = g_pGameRules->EffectivePlayer(pActivator);
-	if (!pPlayer)
-		return;
-
 	const int skillLevel = g_iSkillLevel;
 	const int comparand = pev->button;
 
