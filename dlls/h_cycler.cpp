@@ -315,7 +315,8 @@ public:
 	void SecondaryAttack( void );
 	bool Deploy() override;
 	void Holster();
-	int m_iszModel;
+	bool UseDecrement() override { return false; }
+	string_t m_iszModel;
 	int m_iModel;
 };
 

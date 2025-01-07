@@ -302,7 +302,14 @@ public:
 	virtual void RetireWeapon( void );
 	virtual bool ShouldWeaponIdle( void ) { return false; }
 	virtual void Holster();
-	virtual bool UseDecrement() { return false; }
+	virtual bool UseDecrement()
+	{
+#if CLIENT_WEAPONS
+		return true;
+#else
+		return false;
+#endif
+	}
 
 	int	PrimaryAmmoIndex();
 	int	SecondaryAmmoIndex();
@@ -411,15 +418,6 @@ public:
 	void Reload( void );
 	void WeaponIdle( void );
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_9mmhandgun.mdl"; }
 
 private:
@@ -448,15 +446,6 @@ public:
 	int m_iSwing;
 	TraceResult m_trHit;
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_crowbar.mdl"; }
 
 private:
@@ -479,14 +468,6 @@ public:
 	void WeaponIdle( void );
 	float m_flSoundDelay;
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 	int ViewModelBody() override;
 
 	const char* MyWModel() { return "models/w_357.mdl"; }
@@ -509,15 +490,6 @@ public:
 	void Reload( void );
 	void WeaponIdle( void );
 	int m_iShell;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_9mmAR.mdl"; }
 
@@ -543,15 +515,6 @@ public:
 	void Holster();
 	void Reload( void );
 	void WeaponIdle( void );
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_crossbow.mdl"; }
 
@@ -584,15 +547,6 @@ public:
 	float m_flPumpTime;
 	float m_flNextReload;
 	int m_iShell;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_shotgun.mdl"; }
 
@@ -646,15 +600,6 @@ public:
 	int m_fSpotActive;
 	int m_cActiveRockets;// how many missiles in flight from this launcher right now?
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_rpg.mdl"; }
 
 	void GetWeaponData(weapon_data_t& data);
@@ -696,15 +641,6 @@ public:
 	// was this weapon just fired primary or secondary?
 	// we need to know so we can pick the right set of effects.
 	bool m_fPrimaryFire;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_gauss.mdl"; }
 
@@ -762,15 +698,6 @@ public:
 	CSprite				*m_pSprite;
 #endif
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_egon.mdl"; }
 
 	void GetWeaponData(weapon_data_t& data);
@@ -815,15 +742,6 @@ public:
 
 	int m_iFirePhase;
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_hgun.mdl"; }
 private:
 	unsigned short m_usHornetFire;
@@ -843,15 +761,6 @@ public:
 	void Holster();
 	void WeaponIdle( void );
 	bool PreferNewPhysics();
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_grenade.mdl"; }
 
@@ -889,15 +798,6 @@ public:
 	void DrawSatchel( void );
 	void DrawRadio();
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_satchel.mdl"; }
 
 	void GetWeaponData(weapon_data_t& data);
@@ -923,15 +823,6 @@ public:
 	void Holster();
 	void WeaponIdle( void );
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/v_tripmine.mdl"; }
 private:
 	unsigned short m_usTripFire;
@@ -951,15 +842,6 @@ public:
 	void Holster();
 	void WeaponIdle( void );
 	int m_fJustThrown;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	virtual const char* GrenadeName() const;
 	virtual const char* NestModel() const;
@@ -1001,14 +883,6 @@ public:
 	void UpdateSpot( void );
 	CLaserSpot *m_pEagleLaser;
 	int m_fEagleLaserActive;
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_desert_eagle.mdl"; }
 
@@ -1053,15 +927,6 @@ public:
 	int m_iSwingMode;
 	float m_flBigSwingStart;
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_pipe_wrench.mdl"; }
 
 	void GetWeaponData(weapon_data_t& data);
@@ -1097,14 +962,6 @@ public:
 	bool ShouldWeaponIdle() override { return true; }
 	CBaseEntity* FindHealTarget(bool increasedRadius = false);
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 	const char* MyWModel() { return "models/w_medkit.mdl"; }
 
 	float	m_flSoundDelay;
@@ -1152,14 +1009,6 @@ public:
 	void CreateEffect( void );
 	void UpdateEffect( void );
 	void DestroyEffect( void );
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_bgrap.mdl"; }
 
@@ -1206,15 +1055,6 @@ public:
 	int m_iLink;
 	bool m_bAlternatingEject;
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_saw.mdl"; }
 
 	void GetWeaponData(weapon_data_t& data);
@@ -1259,15 +1099,6 @@ public:
 	void WeaponIdle(void);
 	//void ItemPostFrame(void);
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_m40a1.mdl"; }
 
 private:
@@ -1297,15 +1128,6 @@ public:
 	void WeaponIdle( void );
 
 	bool PlayEmptySound( void ) override;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_displacer.mdl"; }
 
@@ -1347,14 +1169,6 @@ public:
 	void WeaponIdle(void);
 	void CreateChargeEffect(void);
 	void EXPORT ClearBeams(void);
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_shock_rifle.mdl"; }
 private:
@@ -1396,15 +1210,6 @@ public:
 	TraceResult m_trHit;
 	int m_iSwingMode;
 	float m_flStabStart;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_knife.mdl"; }
 
@@ -1448,15 +1253,6 @@ public:
 	void Reload( void );
 	void WeaponIdle( void );
 
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
-
 	const char* MyWModel() { return "models/w_spore_launcher.mdl"; }
 
 	int m_iSquidSpitSprite;
@@ -1481,15 +1277,6 @@ public:
 	void Reload( void );
 	void WeaponIdle( void );
 	int m_iShell;
-
-	bool UseDecrement() override
-	{
-#if CLIENT_WEAPONS
-		return true;
-#else
-		return false;
-#endif
-	}
 
 	const char* MyWModel() { return "models/w_uzi.mdl"; }
 
