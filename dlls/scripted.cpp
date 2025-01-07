@@ -1732,21 +1732,11 @@ class CFurniture : public CBaseMonster
 {
 public:
 	void Spawn( void );
-	void Die( void );
 	int DefaultClassify( void );
 	virtual int ObjectCaps( void ) { return (CBaseMonster::ObjectCaps() & ~FCAP_ACROSS_TRANSITION); }
 };
 
 LINK_ENTITY_TO_CLASS( monster_furniture, CFurniture )
-
-//=========================================================
-// Furniture is killed
-//=========================================================
-void CFurniture::Die( void )
-{
-	SetThink( &CBaseEntity::SUB_Remove );
-	pev->nextthink = gpGlobals->time;
-}
 
 //=========================================================
 // This used to have something to do with bees flying, but
