@@ -1009,26 +1009,26 @@ void CBigMomma::StartTask( Task_t *pTask )
 	case TASK_PLAY_NODE_PRESEQUENCE:
 	case TASK_PLAY_NODE_SEQUENCE:
 		{
-			string_t sequence;
+			string_t sequenceName;
 			if( pTask->iTask == TASK_PLAY_NODE_SEQUENCE )
-				sequence = GetNodeSequence();
+				sequenceName = GetNodeSequence();
 			else
-				sequence = GetNodePresequence();
+				sequenceName = GetNodePresequence();
 
-			if( sequence )
+			if( sequenceName )
 			{
-				sequence = LookupSequence( STRING( sequence ) );
+				int sequence = LookupSequence( STRING( sequenceName ) );
 				if( sequence != -1 )
 				{
 					pev->sequence = sequence;
 					pev->frame = 0;
 					ResetSequenceInfo();
-					ALERT( at_aiconsole, "BM: Playing node %s '%s'\n", pTask->iTask == TASK_PLAY_NODE_PRESEQUENCE ? "presequence" : "sequence", STRING( sequence ) );
+					ALERT( at_aiconsole, "BM: Playing node %s '%s'\n", pTask->iTask == TASK_PLAY_NODE_PRESEQUENCE ? "presequence" : "sequence", STRING( sequenceName ) );
 					return;
 				}
 				else
 				{
-					ALERT( at_aiconsole, "BM: Couldn't play node sequence '%s' - the sequence is missing from the model\n", STRING( sequence ) );
+					ALERT( at_aiconsole, "BM: Couldn't play node sequence '%s' - the sequence is missing from the model\n", STRING( sequenceName ) );
 				}
 			}
 			TaskComplete();
