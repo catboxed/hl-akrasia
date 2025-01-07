@@ -30,7 +30,7 @@
 
 #define SF_INFOBM_RUN		0x0001
 #define SF_INFOBM_WAIT		0x0002
-#define SF_INFOBM_FORGET_ENEMY 0x0004
+#define SF_INFOBM_FORGET_ENEMIES 0x0004
 
 #define SF_BIGMOM_NOBABYCRABS SF_MONSTER_DONT_DROP_GUN
 #define SF_MONSTERCLIP_BABYCRABS SF_MONSTER_SPECIAL_FLAG
@@ -1040,10 +1040,15 @@ void CBigMomma::StartTask( Task_t *pTask )
 		break;
 	case TASK_WAIT_NODE:
 	{
-		if (m_hTargetEnt->pev->spawnflags & SF_INFOBM_FORGET_ENEMY)
+		CInfoBM* pTargetNode = GetTargetInfoBM();
+		if (pTargetNode && pTargetNode->pev->spawnflags & SF_INFOBM_FORGET_ENEMIES)
 		{
-			ALERT(at_aiconsole, "BM: Forgets about enemy\n", STRING(pev->classname));
+			ALERT(at_aiconsole, "BM: Forgets about enemies\n", STRING(pev->classname));
 			m_hEnemy = NULL;
+			for (EHANDLE& oldEnemy : m_hOldEnemy)
+			{
+				oldEnemy = 0;
+			}
 			SetState( MONSTERSTATE_ALERT );
 		}
 
@@ -1056,7 +1061,7 @@ void CBigMomma::StartTask( Task_t *pTask )
 		}
 		else
 			m_flWait = gpGlobals->time + delay;
-		if( m_hTargetEnt->pev->spawnflags & SF_INFOBM_WAIT )
+		if( pTargetNode && pTargetNode->pev->spawnflags & SF_INFOBM_WAIT )
 			ALERT( at_aiconsole, "BM: Wait at node %s forever\n", STRING( pev->netname ) );
 		else
 			ALERT( at_aiconsole, "BM: Wait at node %s for %.2f\n", STRING( pev->netname ), delay );
@@ -1128,13 +1133,16 @@ void CBigMomma::RunTask( Task_t *pTask )
 		}
 		break;
 	case TASK_WAIT_NODE:
-		if( m_hTargetEnt != 0 && ( m_hTargetEnt->pev->spawnflags & SF_INFOBM_WAIT ) )
-			return;
-
-		if( gpGlobals->time > m_flWaitFinished )
 		{
-			TaskComplete();
-			ALERT( at_aiconsole, "BM: The WAIT is over!\n" );
+			CInfoBM* pTargetNode = GetTargetInfoBM();
+			if( pTargetNode && ( pTargetNode->pev->spawnflags & SF_INFOBM_WAIT ) )
+				return;
+
+			if( gpGlobals->time > m_flWaitFinished )
+			{
+				TaskComplete();
+				ALERT( at_aiconsole, "BM: The WAIT is over!\n" );
+			}
 		}
 		break;
 	case TASK_PLAY_NODE_PRESEQUENCE:

@@ -3570,7 +3570,7 @@
 	[
 		1 : "Run To Node" : 0
 		2 : "Wait Indefinitely" : 0
-		4 : "Forget Enemy" : 0
+		4 : "Forget Enemies" : 0
 	]
 	target(target_destination) : "Next node"
 	radius(string) : "Radius" : "0"
