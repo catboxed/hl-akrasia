@@ -595,7 +595,6 @@ LINK_ENTITY_TO_CLASS( monster_babycrab, CBabyCrab )
 
 void CBabyCrab::ApplyDefaultRenderProps(int overridenRenderProps)
 {
-	ALERT(at_console, "CBabyCrab::ApplyDefaultRenderProps: %d\n", overridenRenderProps);
 	if ((overridenRenderProps & Visual::RENDERMODE_DEFINED) == 0)
 		pev->rendermode = kRenderTransTexture;
 	if ((overridenRenderProps & Visual::ALPHA_DEFINED) == 0)
