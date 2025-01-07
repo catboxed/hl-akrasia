@@ -86,6 +86,7 @@ public:
 	void PlayUnUseSentence();
 	void DeathSound( void );
 	void IdleSound( void );
+	void PainSound( void );
 	void OnDying();
 	CUSTOM_SCHEDULES
 
@@ -112,11 +113,16 @@ public:
 	int m_iFrustration;
 	float m_nextWalkFootstep;
 
+	float m_flNextPainTime;
+
 	int m_iShell;
 
 	static const NamedSoundScript shotSoundScript;
 	static const NamedSoundScript cloakSoundScript;
 	static const NamedSoundScript footstepSoundScript;
+
+	static const NamedSoundScript painSoundScript;
+	static const NamedSoundScript dieSoundScript;
 };
 
 LINK_ENTITY_TO_CLASS( monster_human_assassin, CHAssassin )
@@ -135,6 +141,7 @@ TYPEDESCRIPTION	CHAssassin::m_SaveData[] =
 
 	DEFINE_FIELD( CHAssassin, m_iTargetRanderamt, FIELD_INTEGER ),
 	DEFINE_FIELD( CHAssassin, m_iFrustration, FIELD_INTEGER ),
+	DEFINE_FIELD( CHAssassin, m_flNextPainTime, FIELD_TIME ),
 };
 
 IMPLEMENT_SAVERESTORE( CHAssassin, CFollowingMonster )
@@ -163,6 +170,18 @@ const NamedSoundScript CHAssassin::cloakSoundScript = {
 	"HAssassin.Cloak"
 };
 
+const NamedSoundScript CHAssassin::painSoundScript = {
+	CHAN_VOICE,
+	{},
+	"HAssassin.Pain"
+};
+
+const NamedSoundScript CHAssassin::dieSoundScript = {
+	CHAN_VOICE,
+	{},
+	"HAssassin.Die"
+};
+
 void CHAssassin::PlayUseSentence()
 {
 	SENTENCEG_PlayRndSz( ENT( pev ), "HA_OK", 0.6, ATTN_NORM, 0, 90 );
@@ -178,6 +197,7 @@ void CHAssassin::PlayUnUseSentence()
 //=========================================================
 void CHAssassin::DeathSound( void )
 {
+	EmitSoundScript(dieSoundScript);
 }
 
 //=========================================================
@@ -185,6 +205,15 @@ void CHAssassin::DeathSound( void )
 //=========================================================
 void CHAssassin::IdleSound( void )
 {
+}
+
+void CHAssassin::PainSound( void )
+{
+	if( gpGlobals->time > m_flNextPainTime )
+	{
+		EmitSoundScript(painSoundScript);
+		m_flNextPainTime = gpGlobals->time + 1;
+	}
 }
 
 void CHAssassin::OnDying()
@@ -425,6 +454,9 @@ void CHAssassin::Precache()
 	RegisterAndPrecacheSoundScript(shotSoundScript);
 	RegisterAndPrecacheSoundScript(footstepSoundScript);
 	RegisterAndPrecacheSoundScript(cloakSoundScript);
+
+	RegisterAndPrecacheSoundScript(painSoundScript);
+	RegisterAndPrecacheSoundScript(dieSoundScript);
 
 	m_iShell = PRECACHE_MODEL( "models/shell.mdl" );// brass shell
 }	
